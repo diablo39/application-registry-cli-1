@@ -1,0 +1,9 @@
+# create new nuget
+dotnet pack
+
+# Install global tool
+dotnet tool install --global --add-source . ApplicationRegistry.Collector
+
+# Run tool
+
+ar-collector --path C:\Users\Roman\source\repos\ApplicationRegistry.Collector\samples\ApplicationRegistry.SampleWebApplication\ApplicationRegistry.SampleWebApplication.csproj -e INT -a NewApp -v Snapshot -sd v1 -u https://localhost:44346

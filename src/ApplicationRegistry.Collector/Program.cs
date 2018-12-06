@@ -103,7 +103,7 @@ namespace ApplicationRegistry.Collector
 
             services.AddOptions<ApplicationOptions>().Configure(options =>
             {
-                options.ProjectFilePath = ProjectFilePath;
+                options.ProjectFilePath = System.IO.Path.GetFullPath(ProjectFilePath);
                 options.SwaggerDoc = SwaggerDoc;
             });
 

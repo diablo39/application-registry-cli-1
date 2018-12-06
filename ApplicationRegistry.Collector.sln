@@ -15,6 +15,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ApplicationRegistry.Collect
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ApplicationRegistry.Collector.Tests", "tests\ApplicationRegistry.Collector.Tests\ApplicationRegistry.Collector.Tests.csproj", "{203469BF-587F-478D-AAF5-61D9EF0E35CA}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "scripts", "scripts", "{BD9536AB-C8C3-48ED-A0B2-75C0C7481CA4}"
+	ProjectSection(SolutionItems) = preProject
+		scripts\Commands.txt = scripts\Commands.txt
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

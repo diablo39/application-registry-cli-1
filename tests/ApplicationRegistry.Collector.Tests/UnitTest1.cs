@@ -6,9 +6,11 @@ namespace ApplicationRegistry.Collector.Tests
     public class UnitTest1
     {
         [Fact]
-        public void Test1()
+        public void FullPath()
         {
-
+            var relativePath = "test/aa";
+            var a = System.IO.Path.GetFullPath(relativePath);
+            Console.WriteLine(a);
         }
     }
 }
