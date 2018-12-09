@@ -39,7 +39,6 @@ namespace ApplicationRegistry.SampleWebApplication
                     Contact = new Contact
                     {
                         Name = "Shayne Boyer",
-                        Email = string.Empty,
                         Url = "https://twitter.com/spboyer"
                     },
                     License = new License
@@ -48,6 +47,8 @@ namespace ApplicationRegistry.SampleWebApplication
                         Url = "https://example.com/license"
                     }
                 });
+                
+                //c.EnableAnnotations();
 
                 var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
                 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
