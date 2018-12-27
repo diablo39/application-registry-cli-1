@@ -12,7 +12,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Swagger;
 
-namespace ApplicationRegistry.Sample.WebApplication2
+namespace ApplicationRegistry.SampleWebApplication3
 {
     public class Startup
     {
@@ -63,7 +63,6 @@ namespace ApplicationRegistry.Sample.WebApplication2
             }
 
             app.UseHttpsRedirection();
-
             app.UseSwagger();
 
             // Enable middleware to serve swagger-ui (HTML, JS, CSS, etc.), 
@@ -72,8 +71,6 @@ namespace ApplicationRegistry.Sample.WebApplication2
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
             });
-
-
             app.UseMvc();
         }
     }

@@ -8,6 +8,15 @@ namespace ApplicationRegistry.Collector.Model
 {
     public class ApplicationVersionDependency
     {
+        public class Operation
+        {
+            public string OperationId { get; set; }
+
+            public string Path { get; set; }
+
+            public bool IsInUse { get; set; }
+        }
+
         [Required]
         public string Name { get; set; }
 
@@ -18,5 +27,7 @@ namespace ApplicationRegistry.Collector.Model
         public string Version { get; set; }
 
         public Dictionary<string, object> ExtraProperties { get; set; }
+
+        public Dictionary<string, object> VersionExtraProperties { get; set; }
     }
 }

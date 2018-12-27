@@ -17,4 +17,28 @@
     <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="3.0.0" />
   </ItemGroup>
+  <ItemGroup>
+    <DotNetCliToolReference Include="Swashbuckle.AspNetCore.Cli" Version="3.0.0-beta1" />
+  </ItemGroup>
+  <Target Name="SwaggerGeneration" AfterTargets="AfterBuild">
+    <Exec Command="dotnet swagger tofile --output swagger.json &quot;$(OutputPath)$(AssemblyName).dll&quot; &quot;v1&quot;" />
+  </Target>
+  <ItemGroup>
+    <DotNetCliToolReference Include="Swashbuckle.AspNetCore.Cli" Version="3.0.0-beta1" />
+  </ItemGroup>
+  <Target Name="SwaggerGeneration" AfterTargets="AfterBuild">
+    <Exec Command="dotnet swagger tofile --output swagger.json &quot;$(OutputPath)$(AssemblyName).dll&quot; &quot;v1&quot;" />
+  </Target>
+  <ItemGroup>
+    <DotNetCliToolReference Include="Swashbuckle.AspNetCore.Cli" Version="3.0.0-beta1" />
+  </ItemGroup>
+  <Target Name="SwaggerGeneration" AfterTargets="AfterBuild">
+    <Exec Command="dotnet swagger tofile --output swagger.json &quot;$(OutputPath)$(AssemblyName).dll&quot; &quot;v1&quot;" />
+  </Target>
+  <ItemGroup>
+    <DotNetCliToolReference Include="Swashbuckle.AspNetCore.Cli" Version="3.0.0-beta1" />
+  </ItemGroup>
+  <Target Name="SwaggerGeneration" AfterTargets="AfterBuild">
+    <Exec Command="dotnet swagger tofile --output swagger.json &quot;$(OutputPath)$(AssemblyName).dll&quot; &quot;v1&quot;" />
+  </Target>
 </Project>

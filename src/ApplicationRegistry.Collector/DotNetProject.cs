@@ -69,6 +69,7 @@ namespace ApplicationRegistry.Collector
 
             using (var process = new Process())
             {
+                
                 process.StartInfo = start;
                 process.Start();
                 process.WaitForExit();

@@ -4,11 +4,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 
-namespace ApplicationRegistry.Sample.WebApplication2.Controllers
+namespace ApplicationRegistry.SampleWebApplication3.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class Values2Controller : ControllerBase
+    public class Values3Controller : ControllerBase
     {
         // GET api/values
         [HttpGet]

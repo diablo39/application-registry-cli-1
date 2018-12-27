@@ -46,8 +46,8 @@ namespace ApplicationRegistry.Collector.DependencyCollectors
 
                 var project = workspace.CurrentSolution.Projects.Where(p => p.FilePath == projectFile).FirstOrDefault();
 
-                //var graph = workspace.CurrentSolution.GetProjectDependencyGraph();
-                //var dependencies = graph.GetProjectsThatThisProjectTransitivelyDependsOn(project.Id);
+                var graph = workspace.CurrentSolution.GetProjectDependencyGraph();
+                var dependencies = graph.GetProjectsThatThisProjectTransitivelyDependsOn(project.Id);
                 //var projectsToScan = dependencies.Union(new[] { project.Id });
 
                 var compilation = project.GetCompilationAsync().Result;
@@ -56,8 +56,37 @@ namespace ApplicationRegistry.Collector.DependencyCollectors
 
                 var restClientBaseClass = compilation.GetTypeByMetadataName(restClientBaseClassName);
                 var restClients = SymbolFinder.FindDerivedClassesAsync(restClientBaseClass, workspace.CurrentSolution).Result;
-                var members = restClients.First().GetMembers().OfType<IMethodSymbol>().Where(t => t.Name.EndsWith("WithHttpMessagesAsync"))
-                    .Select(e => e.Name.Substring(0, e.Name.Length - "WithHttpMessagesAsync".Length)).ToList();
+                foreach (var restClient in restClients)
+                {
+                    var members = restClient.GetMembers().OfType<IMethodSymbol>().Where(t => t.Name.EndsWith("WithHttpMessagesAsync")).ToList();
+                    var operations = new List<ApplicationVersionDependency.Operation>();
+
+                    foreach (var member in members)
+                    {
+                        var methodName = member.Name.Substring(0, member.Name.Length - "WithHttpMessagesAsync".Length);
+
+
+                        operations.Add(
+                            new ApplicationVersionDependency.Operation
+                            {
+                                IsInUse = false,
+                                OperationId = methodName,
+                                Path = "/value"
+                            });
+                    }
+
+                    result.Add(new ApplicationVersionDependency
+                    {
+                        DependencyType = "AUTORESTCLIENT",
+                        Name = restClient.ToString(),
+                        Version = "-",
+                        VersionExtraProperties = new Dictionary<string, object>
+                            {
+                                { "Operations",operations }
+                            }
+                    });
+                }
+
 
 
             }
