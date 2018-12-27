@@ -20,6 +20,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "scripts", "scripts", "{BD95
 		scripts\Commands.txt = scripts\Commands.txt
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApplicationRegistry.Sample.WebApplication2", "samples\ApplicationRegistry.Sample.WebApplication2\ApplicationRegistry.Sample.WebApplication2.csproj", "{13D74EAA-32EA-44BB-B48B-1B1C1236C4BA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -38,6 +40,10 @@ Global
 		{203469BF-587F-478D-AAF5-61D9EF0E35CA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{203469BF-587F-478D-AAF5-61D9EF0E35CA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{203469BF-587F-478D-AAF5-61D9EF0E35CA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{13D74EAA-32EA-44BB-B48B-1B1C1236C4BA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{13D74EAA-32EA-44BB-B48B-1B1C1236C4BA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{13D74EAA-32EA-44BB-B48B-1B1C1236C4BA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{13D74EAA-32EA-44BB-B48B-1B1C1236C4BA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -46,6 +52,7 @@ Global
 		{57C26456-C4A8-4A34-90F9-C489A9B69876} = {9CAD9078-98A4-46F7-B5F2-DBD8DFB1308F}
 		{37D47806-F855-4919-BF1D-C5484E163212} = {754177B8-71BE-403C-AD7B-B72488D0D54E}
 		{203469BF-587F-478D-AAF5-61D9EF0E35CA} = {3646A2F8-27DF-4E47-B1DB-DB389B83A64B}
+		{13D74EAA-32EA-44BB-B48B-1B1C1236C4BA} = {9CAD9078-98A4-46F7-B5F2-DBD8DFB1308F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {F7612F7A-965C-44B0-8321-AB1D0AB4A57F}

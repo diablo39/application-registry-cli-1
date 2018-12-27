@@ -4,6 +4,8 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.FindSymbols;
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Text;
 using Xunit;
 
@@ -16,34 +18,30 @@ namespace ApplicationRegistry.UnitTests
         {
             string solutionPath = @"C:\Users\Roman\source\repos\ApplicationRegistry.Collector\ApplicationRegistry.Collector.sln";
 
-            string projectFile = @"C:\Users\Roman\source\repos\ApplicationRegistry.Collector\samples\ApplicationRegistry.SampleWebApplication\ApplicationRegistry.SampleWebApplication.csproj";
+            string projectFile = @"ApplicationRegistry.SampleWebApplication.csproj";
 
             AnalyzerManager manager = new AnalyzerManager(solutionPath);
 
             var projects = manager.Projects;
-            //manager.bui
-
 
             AdhocWorkspace workspace = manager.GetWorkspace();
 
+            var project = workspace.CurrentSolution.Projects.Where(p => p.FilePath.Split(Path.DirectorySeparatorChar).Any(e => e == projectFile)).FirstOrDefault();
 
-            foreach (var project in workspace.CurrentSolution.Projects)
-            {
-                if (string.Equals(project.FilePath, projectFile, StringComparison.InvariantCultureIgnoreCase))
-                {
-                    var graph = workspace.CurrentSolution.GetProjectDependencyGraph();
-                    var dependencies = graph.GetProjectsThatThisProjectTransitivelyDependsOn(project.Id);
+            //var graph = workspace.CurrentSolution.GetProjectDependencyGraph();
+            //var dependencies = graph.GetProjectsThatThisProjectTransitivelyDependsOn(project.Id);
+            //var projectsToScan = dependencies.Union(new[] { project.Id });
 
-                    var compilation = project.GetCompilationAsync().Result;
+            var compilation = project.GetCompilationAsync().Result;
 
-                    string TEST_ATTRIBUTE_METADATA_NAME = "Microsoft.Rest.ServiceClient`1";
+            string restClientBaseClassName = "Microsoft.Rest.ServiceClient`1";
 
-                    var testAttributeType = compilation.GetTypeByMetadataName(TEST_ATTRIBUTE_METADATA_NAME);
-                    var aa = SymbolFinder.FindDerivedClassesAsync(testAttributeType, workspace.CurrentSolution).Result;
-                    break;
-                }
-            }
+            var restClientBaseClass = compilation.GetTypeByMetadataName(restClientBaseClassName);
+            var restClients = SymbolFinder.FindDerivedClassesAsync(restClientBaseClass, workspace.CurrentSolution).Result;
+            var members = restClients.First().GetMembers().OfType<IMethodSymbol>().Where(t => t.Name.EndsWith("WithHttpMessagesAsync"))
+                .Select(e => e.Name.Substring(0, e.Name.Length - "WithHttpMessagesAsync".Length)).ToList();
 
+            //var a = Microsoft.CodeAnalysis.CSharp.Symbols.SourceOrdinaryMethodSymbol;
 
             Console.WriteLine();
 

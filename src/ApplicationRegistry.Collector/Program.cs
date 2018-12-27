@@ -11,6 +11,8 @@ using Microsoft.Extensions.Options;
 using System.ComponentModel.DataAnnotations;
 using ApplicationRegistry.Collector.Model;
 using System.Net.Http;
+using System.IO;
+using Newtonsoft.Json;
 
 namespace ApplicationRegistry.Collector
 {
@@ -32,14 +34,21 @@ namespace ApplicationRegistry.Collector
         [Option("-sd|--swaggerdoc <SWAGGERDOC>", "Swagger Doc", CommandOptionType.SingleValue)]
         public string SwaggerDoc { get; }
 
-        [Required]
+        //[Required]
         [Url]
         [Option("-u|--url <URL>", "Url to Application Registry", CommandOptionType.SingleValue)]
         public Uri Url { get; set; }
 
         [Required]
+        [Option("-s|--solution <solution>", "Path to the solution", CommandOptionType.SingleValue)]
+        public string SolutionFilePath { get; }
+
+        [Required]
         [Option("-p|--path <PATH>", "Path to the project", CommandOptionType.SingleValue)]
         public string ProjectFilePath { get; }
+
+        [Option("--output-file <PATH>", "Path to output file", CommandOptionType.SingleValue)]
+        public string FileOutput { get; set; }
 
         public static int Main(string[] args) => CommandLineApplication.Execute<Program>(args);
 
@@ -67,7 +76,8 @@ namespace ApplicationRegistry.Collector
             logger.LogTrace("Ending: specifications generation");
 
             var dependencies = serviceProvider.GetService<NugetDependencyCollector>().GetDependencies();
-
+            var autorestclientdependencies = serviceProvider.GetService<AutorestClientDependencyCollector>().GetDependencies();
+            dependencies.AddRange(autorestclientdependencies);
 
             var result = new ApplicationVersion
             {
@@ -78,18 +88,22 @@ namespace ApplicationRegistry.Collector
                 Specifications = specifications
             };
 
-
-            var client = new HttpClient();
-            client.BaseAddress = Url;
-
-            var postResult = await client.PostAsJsonAsync("/api/v1/collector", result);
-            if(!postResult.IsSuccessStatusCode)
+            if(!string.IsNullOrWhiteSpace(FileOutput))
             {
-                Console.WriteLine("Error occured. Response from the server:");
-
-                var responseTest = await postResult.Content.ReadAsStringAsync();
-                Console.WriteLine(responseTest);
+                File.WriteAllText(FileOutput, JsonConvert.SerializeObject(result, Formatting.Indented));
             }
+
+            //var client = new HttpClient();
+            //client.BaseAddress = Url;
+
+            //var postResult = await client.PostAsJsonAsync("/api/v1/collector", result);
+            //if(!postResult.IsSuccessStatusCode)
+            //{
+            //    Console.WriteLine("Error occured. Response from the server:");
+
+            //    var responseTest = await postResult.Content.ReadAsStringAsync();
+            //    Console.WriteLine(responseTest);
+            //}
 
             Console.WriteLine();
 
@@ -105,11 +119,13 @@ namespace ApplicationRegistry.Collector
             {
                 options.ProjectFilePath = System.IO.Path.GetFullPath(ProjectFilePath);
                 options.SwaggerDoc = SwaggerDoc;
+                options.SolutionFilePath = SolutionFilePath;
             });
 
             services.AddTransient<SwaggerSpecificationGenerator>();
 
             services.AddTransient<NugetDependencyCollector>();
+            services.AddTransient<AutorestClientDependencyCollector>();
         }
     }
 
