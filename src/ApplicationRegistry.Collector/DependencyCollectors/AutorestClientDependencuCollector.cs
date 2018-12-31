@@ -10,11 +10,14 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.FindSymbols;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using System.Collections.Immutable;
 
 namespace ApplicationRegistry.Collector.DependencyCollectors
 {
     class AutorestClientDependencyCollector : IDependencyCollector
     {
+        private const string _restClientBaseClassName = "Microsoft.Rest.ServiceClient`1";
+
         private readonly IOptions<ApplicationOptions> _options;
         private readonly ILogger<AutorestClientDependencyCollector> _logger;
 
@@ -30,12 +33,6 @@ namespace ApplicationRegistry.Collector.DependencyCollectors
 
             try
             {
-                //var dependecy = new ApplicationVersionDependency
-                //{
-                //    DependencyType = "AUTORESTCLIENT",
-                //    Name = ""
-                //}
-
                 var projectFile = _options.Value.ProjectFilePath;
 
                 AnalyzerManager manager = new AnalyzerManager(_options.Value.SolutionFilePath);
@@ -48,14 +45,16 @@ namespace ApplicationRegistry.Collector.DependencyCollectors
 
                 var graph = workspace.CurrentSolution.GetProjectDependencyGraph();
                 var dependencies = graph.GetProjectsThatThisProjectTransitivelyDependsOn(project.Id);
-                //var projectsToScan = dependencies.Union(new[] { project.Id });
+                var projectIdsToScan = dependencies.Union(new[] { project.Id });
+
+                var projectsToScan = workspace.CurrentSolution.Projects.Where(e => projectIdsToScan.Any(p => p.Id == e.Id.Id));
 
                 var compilation = project.GetCompilationAsync().Result;
 
-                string restClientBaseClassName = "Microsoft.Rest.ServiceClient`1";
+                var restClientBaseClass = compilation.GetTypeByMetadataName(_restClientBaseClassName);
 
-                var restClientBaseClass = compilation.GetTypeByMetadataName(restClientBaseClassName);
-                var restClients = SymbolFinder.FindDerivedClassesAsync(restClientBaseClass, workspace.CurrentSolution).Result;
+                var restClients = SymbolFinder.FindDerivedClassesAsync(restClientBaseClass, workspace.CurrentSolution, projectsToScan.ToImmutableHashSet()).Result;
+
                 foreach (var restClient in restClients)
                 {
                     var members = restClient.GetMembers().OfType<IMethodSymbol>().Where(t => t.Name.EndsWith("WithHttpMessagesAsync")).ToList();
