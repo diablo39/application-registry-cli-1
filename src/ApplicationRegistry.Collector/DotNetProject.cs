@@ -38,8 +38,7 @@ namespace ApplicationRegistry.Collector
                 CreateNoWindow = true,
                 WorkingDirectory = _projectDirectory,
                 RedirectStandardOutput = true,
-                RedirectStandardError = true,
-                RedirectStandardInput = true
+                RedirectStandardError = true
             };
 
             using (var process = new Process())
@@ -76,7 +75,7 @@ namespace ApplicationRegistry.Collector
 
                 if (process.ExitCode != 0)
                 {
-                    var errorOutput = process.StandardError.ReadToEnd();
+                    var errorOutput = process.StandardOutput.ReadToEnd();
                     throw new Exception("Operation failed. Error: " + errorOutput);
                 }
             }

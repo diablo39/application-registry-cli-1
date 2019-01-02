@@ -57,17 +57,33 @@ namespace ApplicationRegistry.Collector
         private async Task OnExecute()
         {
             var serviceCollection = new ServiceCollection();
+
             ConfigureServices(serviceCollection);
 
             var serviceProvider = serviceCollection.BuildServiceProvider();
+            var logger = serviceProvider.GetService<ILogger<Program>>();
 
+            try
+            {
+                RunCollector(serviceProvider);
+            }
+            catch (Exception ex)
+            {
+                
+                logger.LogCritical(ex, "Execution failed");
+            }
+
+        }
+
+        private void RunCollector(ServiceProvider serviceProvider)
+        {
             var logger = serviceProvider.GetService<ILogger<Program>>();
 
             logger.LogInformation($"Starting application with parameters: {NewLine}\turl: {Url}{NewLine}\tApplication: {Applicatnion}");
 
             logger.LogTrace("Starting specification generation");
             var loggerScope = logger.BeginScope("SpecificationGeneration");
-            
+
             var specifications = serviceProvider.GetService<SwaggerSpecificationGenerator>().GetSpecifications();
             logger.LogTrace("Swagger generated");
             loggerScope.Dispose();
@@ -88,7 +104,7 @@ namespace ApplicationRegistry.Collector
                 Specifications = specifications
             };
 
-            if(!string.IsNullOrWhiteSpace(FileOutput))
+            if (!string.IsNullOrWhiteSpace(FileOutput))
             {
                 File.WriteAllText(FileOutput, JsonConvert.SerializeObject(result, Formatting.Indented));
             }
@@ -106,7 +122,6 @@ namespace ApplicationRegistry.Collector
             //}
 
             Console.WriteLine();
-
         }
 
         private void ConfigureServices(IServiceCollection services)
