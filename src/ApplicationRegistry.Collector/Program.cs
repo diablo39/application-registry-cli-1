@@ -34,11 +34,6 @@ namespace ApplicationRegistry.Collector
         [Option("-sd|--swaggerdoc <SWAGGERDOC>", "Swagger Doc", CommandOptionType.SingleValue)]
         public string SwaggerDoc { get; }
 
-        //[Required]
-        [Url]
-        [Option("-u|--url <URL>", "Url to Application Registry", CommandOptionType.SingleValue)]
-        public Uri Url { get; set; }
-
         [Required]
         [Option("-s|--solution <solution>", "Path to the solution", CommandOptionType.SingleValue)]
         public string SolutionFilePath { get; }
@@ -50,11 +45,15 @@ namespace ApplicationRegistry.Collector
         [Option("--output-file <PATH>", "Path to output file", CommandOptionType.SingleValue)]
         public string FileOutput { get; set; }
 
+        [Url]
+        [Option("--output-url <URL>", "Url to Application Registry", CommandOptionType.SingleValue)]
+        public Uri Url { get; set; }
+
         public static int Main(string[] args) => CommandLineApplication.Execute<Program>(args);
 
         private static string NewLine = System.Environment.NewLine;
 
-        private async Task OnExecute()
+        public async Task OnExecute()
         {
             var serviceCollection = new ServiceCollection();
 
@@ -65,7 +64,7 @@ namespace ApplicationRegistry.Collector
 
             try
             {
-                RunCollector(serviceProvider);
+                await RunCollectorAsync(serviceProvider);
             }
             catch (Exception ex)
             {
@@ -75,7 +74,7 @@ namespace ApplicationRegistry.Collector
 
         }
 
-        private void RunCollector(ServiceProvider serviceProvider)
+        private async Task RunCollectorAsync(ServiceProvider serviceProvider)
         {
             var logger = serviceProvider.GetService<ILogger<Program>>();
 
@@ -109,17 +108,20 @@ namespace ApplicationRegistry.Collector
                 File.WriteAllText(FileOutput, JsonConvert.SerializeObject(result, Formatting.Indented));
             }
 
-            //var client = new HttpClient();
-            //client.BaseAddress = Url;
+            if (Url != null)
+            {
+                var client = new HttpClient();
+                client.BaseAddress = Url;
 
-            //var postResult = await client.PostAsJsonAsync("/api/v1/collector", result);
-            //if(!postResult.IsSuccessStatusCode)
-            //{
-            //    Console.WriteLine("Error occured. Response from the server:");
+                var postResult = await client.PostAsJsonAsync("/api/v1/collector", result);
+                if (!postResult.IsSuccessStatusCode)
+                {
+                    Console.WriteLine("Error occured. Response from the server:");
 
-            //    var responseTest = await postResult.Content.ReadAsStringAsync();
-            //    Console.WriteLine(responseTest);
-            //}
+                    var responseTest = await postResult.Content.ReadAsStringAsync();
+                    Console.WriteLine(responseTest);
+                } 
+            }
 
             Console.WriteLine();
         }
