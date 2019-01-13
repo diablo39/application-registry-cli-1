@@ -34,13 +34,13 @@ namespace ApplicationRegistry.Collector
         [Option("-sd|--swaggerdoc <SWAGGERDOC>", "Swagger Doc", CommandOptionType.SingleValue)]
         public string SwaggerDoc { get; }
 
-        [Required]
+    
         [Option("-s|--solution <solution>", "Path to the solution", CommandOptionType.SingleValue)]
-        public string SolutionFilePath { get; }
+        public string SolutionFilePath { get; set; }
 
         [Required]
         [Option("-p|--path <PATH>", "Path to the project", CommandOptionType.SingleValue)]
-        public string ProjectFilePath { get; }
+        public string ProjectFilePath { get; set; }
 
         [Option("--output-file <PATH>", "Path to output file", CommandOptionType.SingleValue)]
         public string FileOutput { get; set; }
@@ -51,10 +51,23 @@ namespace ApplicationRegistry.Collector
 
         public static int Main(string[] args) => CommandLineApplication.Execute<Program>(args);
 
-        private static string NewLine = System.Environment.NewLine;
+        private static string _newLine = System.Environment.NewLine;
 
-        public async Task OnExecute()
+        public async Task<int> OnExecute()
         {
+            ProjectFilePath = System.IO.Path.GetFullPath(ProjectFilePath);
+
+            if (string.IsNullOrWhiteSpace(SolutionFilePath))
+            {
+                var success = false;
+                success = FindSolutionFile(success);
+
+                if (!success)
+                {
+                    return -1;
+                }
+            }
+
             var serviceCollection = new ServiceCollection();
 
             ConfigureServices(serviceCollection);
@@ -72,13 +85,48 @@ namespace ApplicationRegistry.Collector
                 logger.LogCritical(ex, "Execution failed");
             }
 
+            return 0;
+        }
+
+        private bool FindSolutionFile(bool success)
+        {
+            var directory = new FileInfo(ProjectFilePath).Directory;
+            do
+            {
+                var files = directory.GetFiles("*.sln");
+
+                if (files.Length == 1)
+                {
+                    SolutionFilePath = files[0].FullName;
+                    success = true;
+                    break;
+                }
+
+                if (files.Length > 1)
+                {
+                    Console.WriteLine("More than one solution file found.");
+                    Console.WriteLine("Found:");
+                    for (int i = 0; i < files.Length; i++)
+                    {
+                        Console.WriteLine($"* {files[i].FullName}");
+                    }
+                    Console.WriteLine("Use parametr --solution to specify correct solution file");
+                    success = false;
+                    break;
+                }
+
+
+                directory = directory.Parent;
+            }
+            while (directory != null);
+            return success;
         }
 
         private async Task RunCollectorAsync(ServiceProvider serviceProvider)
         {
             var logger = serviceProvider.GetService<ILogger<Program>>();
 
-            logger.LogInformation($"Starting application with parameters: {NewLine}\turl: {Url}{NewLine}\tApplication: {Applicatnion}");
+            logger.LogInformation($"Starting application with parameters: {_newLine}\turl: {Url}{_newLine}\tApplication: {Applicatnion}");
 
             logger.LogTrace("Starting specification generation");
             var loggerScope = logger.BeginScope("SpecificationGeneration");
@@ -134,7 +182,7 @@ namespace ApplicationRegistry.Collector
 
             services.AddOptions<ApplicationOptions>().Configure(options =>
             {
-                options.ProjectFilePath = System.IO.Path.GetFullPath(ProjectFilePath);
+                options.ProjectFilePath = ProjectFilePath;
                 options.SwaggerDoc = SwaggerDoc;
                 options.SolutionFilePath = SolutionFilePath;
             });

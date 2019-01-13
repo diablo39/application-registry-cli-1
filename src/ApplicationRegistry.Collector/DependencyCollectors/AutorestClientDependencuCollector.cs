@@ -53,6 +53,9 @@ namespace ApplicationRegistry.Collector.DependencyCollectors
 
                 var restClientBaseClass = compilation.GetTypeByMetadataName(_restClientBaseClassName);
 
+                if (restClientBaseClass == null)
+                    return result;
+
                 var restClients = SymbolFinder.FindDerivedClassesAsync(restClientBaseClass, workspace.CurrentSolution, projectsToScan.ToImmutableHashSet()).Result;
 
                 foreach (var restClient in restClients)

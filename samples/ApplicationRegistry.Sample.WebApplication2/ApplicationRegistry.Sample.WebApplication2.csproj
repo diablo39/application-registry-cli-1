@@ -23,5 +23,7 @@
   <ItemGroup>
     <WCFMetadata Include="Connected Services" />
   </ItemGroup>
-
+  <ItemGroup>
+    <DotNetCliToolReference Include="Swashbuckle.AspNetCore.Cli" Version="3.0.0-beta1" />
+  </ItemGroup>
 </Project>

@@ -1,7 +1,11 @@
 ﻿using McMaster.Extensions.CommandLineUtils;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
+using System.Text;
+using System.Threading;
 using System.Xml.Linq;
 
 namespace ApplicationRegistry.Collector
@@ -9,8 +13,9 @@ namespace ApplicationRegistry.Collector
     public class DotNetProject : IDisposable
     {
         private readonly string _projectFile;
-        private readonly string _projectFileBackup;
         private readonly string _projectDirectory;
+        private readonly List<(string file, string bakFile)> _filesToRollBack = new List<(string file, string bakFile)>();
+        private readonly List<string> _filesToRemove = new List<string>();
 
         public DotNetProject(string projectFile)
         {
@@ -20,10 +25,73 @@ namespace ApplicationRegistry.Collector
             }
 
             _projectFile = projectFile;
-            _projectFileBackup = projectFile + ".bak";
-            _projectDirectory = new FileInfo(_projectFileBackup).Directory.FullName;
+            var projectFileBak = BackupFile(projectFile);
+            _filesToRollBack.Add((projectFile, projectFileBak));
+            _projectDirectory = new FileInfo(_projectFile).Directory.FullName;
+        }
 
-            File.Copy(projectFile, _projectFileBackup, true);
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="path">Absolute or relative to csproj</param>
+        /// <param name="content"></param>
+        public void AddFile(string path, string content, bool undoAfterDispose = true)
+        {
+            var filePath = path;
+
+            if (!Path.IsPathFullyQualified(filePath))
+            {
+                var projectFileDirectoryPath = _projectDirectory;
+                filePath = Path.GetFullPath(filePath, projectFileDirectoryPath);
+            }
+
+            if (undoAfterDispose)
+            {
+                _filesToRemove.Add(filePath);
+            }
+
+            File.WriteAllText(filePath, content);
+        }
+
+        public string Run(params string[] args)
+        {
+            var parameters = new StringBuilder("run --no-launch-profile -- ");
+
+            if(args != null)
+            {
+                parameters.Append(string.Join(" ", args));
+            }
+
+            var start = new ProcessStartInfo(DotNetExe.FullPathOrDefault(), parameters.ToString())
+            {
+                CreateNoWindow = true,
+                WorkingDirectory = _projectDirectory,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                RedirectStandardInput = true
+            };
+
+            using (var process = new Process())
+            {
+                process.StartInfo = start;
+                process.Start();
+
+                var result = new StringBuilder();
+
+                while (!process.HasExited)
+                {
+                    result.Append(process.StandardOutput.ReadToEnd());
+                }
+
+                
+                if (process.ExitCode != 0)
+                {
+                    var errorOutput = process.StandardOutput.ReadToEnd();
+                    throw new Exception("Operation failed. Error: " + errorOutput);
+                }
+
+                return result.ToString();
+            }
         }
 
         public void AddPackage(string packageName, string version = null)
@@ -55,9 +123,17 @@ namespace ApplicationRegistry.Collector
             }
         }
 
-        public void Build()
+        public void Build(string startupObject = null)
         {
-            var start = new ProcessStartInfo(DotNetExe.FullPathOrDefault(), "build")
+            var commandBuilder = new StringBuilder("build ");
+            commandBuilder.Append(_projectFile);
+
+            if (!string.IsNullOrWhiteSpace(startupObject))
+            {
+                commandBuilder.AppendFormat(" /p:StartupObject={0}", startupObject);
+            }
+
+            var start = new ProcessStartInfo(DotNetExe.FullPathOrDefault(), commandBuilder.ToString())
             {
                 CreateNoWindow = true,
                 WorkingDirectory = _projectDirectory,
@@ -68,7 +144,7 @@ namespace ApplicationRegistry.Collector
 
             using (var process = new Process())
             {
-                
+
                 process.StartInfo = start;
                 process.Start();
                 process.WaitForExit();
@@ -88,7 +164,7 @@ namespace ApplicationRegistry.Collector
             var root = document.Root;
 
             root.Add(
-                new XElement("ItemGroup", 
+                new XElement("ItemGroup",
                     new XElement("DotNetCliToolReference", new XAttribute("Include", name), new XAttribute("Version", version))));
 
             document.Save(_projectFile);
@@ -107,20 +183,61 @@ namespace ApplicationRegistry.Collector
             document.Save(_projectFile);
         }
 
+        private string BackupFile(string filePath)
+        {
+            if (!Path.IsPathFullyQualified(filePath))
+                throw new ArgumentException("path should be absoule", nameof(filePath));
+
+            var backFileName = filePath + ".bak";
+
+            File.Copy(filePath, backFileName, true);
+
+            return backFileName;
+        }
+
         #region IDisposable Support
         private bool _disposedValue = false; // To detect redundant calls
 
         protected virtual void Dispose(bool disposing)
         {
+            var exceptions = new List<Exception>();
+
             if (!_disposedValue)
             {
                 if (disposing)
                 {
-                    File.Copy(_projectFileBackup, _projectFile, true);
-                    File.Delete(_projectFileBackup);
+                    foreach (var backup in _filesToRollBack)
+                    {
+                        try
+                        {
+                            File.Copy(backup.bakFile, backup.file, true);
+                            File.Delete(backup.bakFile);
+                        }
+                        catch (Exception ex)
+                        {
+                            exceptions.Add(ex);
+                        }
+                    }
+
+                    foreach (var remove in _filesToRemove)
+                    {
+                        try
+                        {
+                            File.Delete(remove);
+                        }
+                        catch (Exception ex)
+                        {
+                            exceptions.Add(ex);
+                        }
+                    }
                 }
 
                 _disposedValue = true;
+
+                if(exceptions.Any())
+                {
+                    throw new AggregateException("Couple files couldn't be retrived from backup. See inner exceptions for details.", exceptions);
+                }
             }
         }
 

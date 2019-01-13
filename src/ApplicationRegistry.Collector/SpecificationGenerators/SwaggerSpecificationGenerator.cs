@@ -4,8 +4,10 @@ using System.Diagnostics;
 using System.IO;
 using System.Text;
 using ApplicationRegistry.Collector.Model;
+using ApplicationRegistry.Collector.Properties;
 using McMaster.Extensions.CommandLineUtils;
 using Microsoft.Extensions.Options;
+using Resources = ApplicationRegistry.Collector.Properties.Resources;
 
 namespace ApplicationRegistry.Collector.SpecificationGenerators
 {
@@ -26,18 +28,15 @@ namespace ApplicationRegistry.Collector.SpecificationGenerators
         {
             using (var project = new DotNetProject(_projectFilePath))
             {
-                var outputFilePath = "swagger.json";
-                project.AddDotNetCliToolReference("Swashbuckle.AspNetCore.Cli", "3.0.0-beta1");
-                var command = string.Concat("dotnet swagger tofile --output ", outputFilePath, " \"$(OutputPath)$(AssemblyName).dll\" \"", _swaggerdoc, "\"");
-                project.AddAfterBuildCommand("SwaggerGeneration", command);
 
-                project.Build();
+                //var outputFilePath = "swagger.json";
+                //project.AddDotNetCliToolReference("Swashbuckle.AspNetCore.Cli", "3.0.0-beta1");
+                //var command = string.Concat("dotnet swagger tofile --output ", outputFilePath, " \"$(OutputPath)$(AssemblyName).dll\" \"", _swaggerdoc, "\"");
+                //project.AddAfterBuildCommand("SwaggerGeneration", command);
 
-                var outputFileFullPath = Path.Combine(_projectDirectory, outputFilePath);
-
-                var swagger = File.ReadAllText(outputFileFullPath);
-
-                File.Delete(outputFileFullPath);
+                project.AddFile("ApplicationRegistryProgram.cs", Resources.ApplicationRegistryProgram, true);
+                project.Build("ApplicationRegistry.ApplicationRegistryProgram");
+                string swagger = project.Run(_swaggerdoc);
 
                 return new List<ApplicationVersionSpecification>() {
                     new ApplicationVersionSpecification {
