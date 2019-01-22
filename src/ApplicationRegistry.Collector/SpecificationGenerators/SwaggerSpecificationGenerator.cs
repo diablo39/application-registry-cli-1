@@ -6,6 +6,7 @@ using System.Text;
 using ApplicationRegistry.Collector.Model;
 using ApplicationRegistry.Collector.Properties;
 using McMaster.Extensions.CommandLineUtils;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Resources = ApplicationRegistry.Collector.Properties.Resources;
 
@@ -16,25 +17,33 @@ namespace ApplicationRegistry.Collector.SpecificationGenerators
         private readonly string _projectFilePath;
         private readonly string _projectDirectory;
         private readonly string _swaggerdoc;
+        private readonly ILogger<SwaggerSpecificationGenerator> _logger;
+        private readonly ILoggerFactory _loggerFactory;
 
-        public SwaggerSpecificationGenerator(IOptions<ApplicationOptions> options)
+        public SwaggerSpecificationGenerator(IOptions<ApplicationOptions> options, ILoggerFactory loggerFactory)
         {
             _projectFilePath = options.Value.ProjectFilePath;
             _projectDirectory = new FileInfo(_projectFilePath).Directory.FullName;
-            _swaggerdoc = options.Value.SwaggerDoc; 
+            _swaggerdoc = options.Value.SwaggerDoc;
+            _logger = loggerFactory.CreateLogger<SwaggerSpecificationGenerator>();
+            _loggerFactory = loggerFactory;
         }
 
         public List<ApplicationVersionSpecification> GetSpecifications()
         {
-            using (var project = new DotNetProject(_projectFilePath))
+            _logger.LogDebug("Starting swagger generation process");
+            using (var project = new DotNetProject(_loggerFactory.CreateLogger<DotNetProject>(),  _projectFilePath))
             {
 
-                //var outputFilePath = "swagger.json";
-                //project.AddDotNetCliToolReference("Swashbuckle.AspNetCore.Cli", "3.0.0-beta1");
-                //var command = string.Concat("dotnet swagger tofile --output ", outputFilePath, " \"$(OutputPath)$(AssemblyName).dll\" \"", _swaggerdoc, "\"");
-                //project.AddAfterBuildCommand("SwaggerGeneration", command);
+                _logger.LogDebug("Starting standard build of the application");
+                project.Build();
+                _logger.LogDebug("Standard build finished");
 
+                _logger.LogDebug("Adding new main function");
                 project.AddFile("ApplicationRegistryProgram.cs", Resources.ApplicationRegistryProgram, true);
+                _logger.LogDebug("New main function added");
+
+
                 project.Build("ApplicationRegistry.ApplicationRegistryProgram");
                 string swagger = project.Run(_swaggerdoc);
 

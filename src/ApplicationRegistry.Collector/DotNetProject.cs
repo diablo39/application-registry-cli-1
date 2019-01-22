@@ -1,4 +1,6 @@
 ﻿using McMaster.Extensions.CommandLineUtils;
+using Microsoft.Build.Framework;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -12,18 +14,20 @@ namespace ApplicationRegistry.Collector
 {
     public class DotNetProject : IDisposable
     {
+        private readonly ILogger<DotNetProject> _logger;
         private readonly string _projectFile;
         private readonly string _projectDirectory;
         private readonly List<(string file, string bakFile)> _filesToRollBack = new List<(string file, string bakFile)>();
         private readonly List<string> _filesToRemove = new List<string>();
 
-        public DotNetProject(string projectFile)
+        public DotNetProject(ILogger<DotNetProject> logger, string projectFile)
         {
             if (string.IsNullOrWhiteSpace(projectFile))
             {
                 throw new ArgumentException("Field cant't be null or white space", nameof(projectFile));
             }
 
+            _logger = logger;
             _projectFile = projectFile;
             var projectFileBak = BackupFile(projectFile);
             _filesToRollBack.Add((projectFile, projectFileBak));
@@ -68,9 +72,10 @@ namespace ApplicationRegistry.Collector
                 WorkingDirectory = _projectDirectory,
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
-                RedirectStandardInput = true
+                RedirectStandardInput = true,
+                
             };
-
+            
             using (var process = new Process())
             {
                 process.StartInfo = start;
@@ -80,14 +85,15 @@ namespace ApplicationRegistry.Collector
 
                 while (!process.HasExited)
                 {
-                    result.Append(process.StandardOutput.ReadToEnd());
+                    var lines = process.StandardOutput.ReadToEnd();
+                    _logger.LogDebug(lines);
+                    result.Append(lines);
                 }
 
                 
                 if (process.ExitCode != 0)
                 {
-                    var errorOutput = process.StandardOutput.ReadToEnd();
-                    throw new Exception("Operation failed. Error: " + errorOutput);
+                    throw new Exception("Operation failed. Error: " + result.ToString());
                 }
 
                 return result.ToString();
@@ -147,12 +153,17 @@ namespace ApplicationRegistry.Collector
 
                 process.StartInfo = start;
                 process.Start();
-                process.WaitForExit();
+                
+                while(!process.HasExited)
+                {
+                    var output = process.StandardOutput.ReadToEnd();
+                    _logger.LogDebug(output);
+                }
 
                 if (process.ExitCode != 0)
                 {
-                    var errorOutput = process.StandardOutput.ReadToEnd();
-                    throw new Exception("Operation failed. Error: " + errorOutput);
+                    _logger.LogError("Error while building application");
+                    throw new Exception("Project can't be build. Read previous erroros ");
                 }
             }
         }

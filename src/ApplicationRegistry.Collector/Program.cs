@@ -13,6 +13,7 @@ using ApplicationRegistry.Collector.Model;
 using System.Net.Http;
 using System.IO;
 using Newtonsoft.Json;
+using System.Collections.Generic;
 
 namespace ApplicationRegistry.Collector
 {
@@ -126,14 +127,24 @@ namespace ApplicationRegistry.Collector
         {
             var logger = serviceProvider.GetService<ILogger<Program>>();
 
-            logger.LogInformation($"Starting application with parameters: {_newLine}\turl: {Url}{_newLine}\tApplication: {Applicatnion}");
+            logger.LogInformation($"Starting application with parameters: {_newLine}\turl: {Url}{_newLine}\tApplication: {Applicatnion}{_newLine}\tPath: {this.ProjectFilePath}");
 
             logger.LogTrace("Starting specification generation");
-            var loggerScope = logger.BeginScope("SpecificationGeneration");
 
-            var specifications = serviceProvider.GetService<SwaggerSpecificationGenerator>().GetSpecifications();
-            logger.LogTrace("Swagger generated");
-            loggerScope.Dispose();
+            var specifications = new List<ApplicationVersionSpecification>();
+
+            using (var loggerScope = logger.BeginScope("SpecificationGeneration"))
+            {
+                var specificationGenerators = serviceProvider.GetRequiredService<ISpecificationGenerator[]>();
+                for (int i = 0; i < specificationGenerators.Length; i++)
+                {
+                    var specificationGenerator = specificationGenerators[i];
+                    logger.LogDebug("Starting {0}", specificationGenerator.GetType());
+                    var specificationsGenerated = specificationGenerator.GetSpecifications();
+                    logger.LogDebug("Ending {0}", specificationGenerator.GetType());
+                    specifications.AddRange(specificationsGenerated);
+                }
+            }
 
 
             logger.LogTrace("Ending: specifications generation");
@@ -187,10 +198,23 @@ namespace ApplicationRegistry.Collector
                 options.SolutionFilePath = SolutionFilePath;
             });
 
+            
             services.AddTransient<SwaggerSpecificationGenerator>();
-
             services.AddTransient<NugetDependencyCollector>();
             services.AddTransient<AutorestClientDependencyCollector>();
+
+            services.AddTransient(s => {
+                return new ISpecificationGenerator[]
+                {
+                    s.GetRequiredService<SwaggerSpecificationGenerator>()
+                };
+            });
+
+            services.AddTransient(s => new IDependencyCollector[]
+            {
+                s.GetRequiredService<NugetDependencyCollector>(),
+                s.GetRequiredService<AutorestClientDependencyCollector>()
+            });
         }
     }
 
