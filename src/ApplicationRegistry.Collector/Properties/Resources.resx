@@ -138,12 +138,22 @@ namespace ApplicationRegistry
                            .Build();
 
                 var swaggerProvider = host.Services.GetRequiredService&lt;ISwaggerProvider&gt;();
-                var swagger = swaggerProvider.GetSwagger(args[0]);
 
-                var mvcOptionsAccessor = (IOptions&lt;MvcJsonOptions&gt;)host.Services.GetService(typeof(IOptions&lt;MvcJsonOptions&gt;));
+                var swaggerProviderType = swaggerProvider.GetType();
+                var swashbuckleVersion = swaggerProviderType.Assembly.GetName().Version.Major;
 
-                var serializer = SwaggerSerializerFactory.Create(mvcOptionsAccessor);
-                serializer.Serialize(Console.Out, swagger);
+                switch (swashbuckleVersion)
+                {
+                    case 3:
+                        Swagger3(host, swaggerProvider, swaggerProviderType);
+                        break;
+
+                    case 4:
+                        Swagger4(host, swaggerProvider, swaggerProviderType);
+                        break;
+                    default:
+                        return -2;
+                }
 
                 return 0;
             }
@@ -151,6 +161,45 @@ namespace ApplicationRegistry
             {
                 Console.WriteLine(ex);
                 return -1;
+            }
+        }
+
+        private static void Swagger4(IWebHost host, ISwaggerProvider swaggerProvider, Type swaggerProviderType)
+        {
+            var settingMemberInfo = swaggerProviderType.GetMember("_options", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            dynamic settings = ((settingMemberInfo[0] as System.Reflection.FieldInfo).GetValue(swaggerProvider));
+            var enumerator = settings.SwaggerDocs.Keys.GetEnumerator();
+            if (enumerator.MoveNext())
+            {
+                var key = enumerator.Current;
+
+                var swagger = swaggerProvider.GetSwagger(key);
+
+                var mvcOptionsAccessor = (IOptions&lt;MvcJsonOptions&gt;)host.Services.GetService(typeof(IOptions&lt;MvcJsonOptions&gt;));
+
+                var serializer = SwaggerSerializerFactory.Create(mvcOptionsAccessor);
+                serializer.Serialize(Console.Out, swagger);
+
+            }
+        }
+
+        private static void Swagger3(IWebHost host, ISwaggerProvider swaggerProvider, Type swaggerProviderType)
+        {
+            var settingsMemberInfo = swaggerProviderType.GetMember("_settings", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+
+            dynamic settings = ((settingsMemberInfo[0] as System.Reflection.FieldInfo).GetValue(swaggerProvider));
+            var enumerator = settings.SwaggerDocs.Keys.GetEnumerator();
+            if (enumerator.MoveNext())
+            {
+                var key = enumerator.Current;
+
+                var swagger = swaggerProvider.GetSwagger(key);
+
+                var mvcOptionsAccessor = (IOptions&lt;MvcJsonOptions&gt;)host.Services.GetService(typeof(IOptions&lt;MvcJsonOptions&gt;));
+
+                var serializer = SwaggerSerializerFactory.Create(mvcOptionsAccessor);
+                serializer.Serialize(Console.Out, swagger);
+
             }
         }
     }

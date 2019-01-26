@@ -30,11 +30,6 @@ namespace ApplicationRegistry.Collector
         [Required]
         [Option("-e|--env <ENV>", "Environment", CommandOptionType.SingleValue)]
         public string Environment { get; }
-
-        [Required]
-        [Option("-sd|--swaggerdoc <SWAGGERDOC>", "Swagger Doc", CommandOptionType.SingleValue)]
-        public string SwaggerDoc { get; }
-
     
         [Option("-s|--solution <solution>", "Path to the solution", CommandOptionType.SingleValue)]
         public string SolutionFilePath { get; set; }
@@ -194,7 +189,6 @@ namespace ApplicationRegistry.Collector
             services.AddOptions<ApplicationOptions>().Configure(options =>
             {
                 options.ProjectFilePath = ProjectFilePath;
-                options.SwaggerDoc = SwaggerDoc;
                 options.SolutionFilePath = SolutionFilePath;
             });
 

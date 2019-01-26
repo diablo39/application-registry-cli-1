@@ -4,8 +4,6 @@
     {
         public string ProjectFilePath { get; set; }
 
-        public string SwaggerDoc { get; set; }
-
         public string SolutionFilePath { get; set; }
     }
 

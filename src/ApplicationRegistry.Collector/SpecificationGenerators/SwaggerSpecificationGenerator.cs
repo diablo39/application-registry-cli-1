@@ -16,7 +16,6 @@ namespace ApplicationRegistry.Collector.SpecificationGenerators
     {
         private readonly string _projectFilePath;
         private readonly string _projectDirectory;
-        private readonly string _swaggerdoc;
         private readonly ILogger<SwaggerSpecificationGenerator> _logger;
         private readonly ILoggerFactory _loggerFactory;
 
@@ -24,7 +23,6 @@ namespace ApplicationRegistry.Collector.SpecificationGenerators
         {
             _projectFilePath = options.Value.ProjectFilePath;
             _projectDirectory = new FileInfo(_projectFilePath).Directory.FullName;
-            _swaggerdoc = options.Value.SwaggerDoc;
             _logger = loggerFactory.CreateLogger<SwaggerSpecificationGenerator>();
             _loggerFactory = loggerFactory;
         }
@@ -45,14 +43,14 @@ namespace ApplicationRegistry.Collector.SpecificationGenerators
 
 
                 project.Build("ApplicationRegistry.ApplicationRegistryProgram");
-                string swagger = project.Run(_swaggerdoc);
+                string swagger = project.Run();
 
                 return new List<ApplicationVersionSpecification>() {
                     new ApplicationVersionSpecification {
                         ContentType = "application/json",
                         SpecificationType = "Swagger",
                         Specification = swagger,
-                        Code = _swaggerdoc
+                        Code = "Swagger"
                     }
                 };
             }
