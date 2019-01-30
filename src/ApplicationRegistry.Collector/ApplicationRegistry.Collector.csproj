@@ -8,6 +8,10 @@
     <ToolCommandName>ar-collector</ToolCommandName>
     <PackageOutputPath>../../nupkg</PackageOutputPath>
     <Configurations>Debug;Release;App2;App3</Configurations>
+    <Version>1.0.1</Version>
+    <Authors>Roman Glogowski</Authors>
+    <Company>Roman</Company>
+    <RepositoryType>git</RepositoryType>
   </PropertyGroup>
 
   <ItemGroup>
