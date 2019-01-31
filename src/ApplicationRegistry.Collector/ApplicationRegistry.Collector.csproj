@@ -15,6 +15,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Resources\ApplicationRegistryProgram.ignore.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Resources\ApplicationRegistryProgram.ignore.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Buildalyzer.Workspaces" Version="2.2.0" />
     <PackageReference Include="McMaster.Extensions.CommandLineUtils" Version="2.2.5" />
     <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="5.2.6" />

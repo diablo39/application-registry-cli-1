@@ -62,8 +62,10 @@ namespace ApplicationRegistry.Collector.Properties {
         
         /// <summary>
         ///   Looks up a localized string similar to using System;
+        ///using System.IO;
         ///using Microsoft.AspNetCore.Hosting;
         ///using Microsoft.AspNetCore.Mvc;
+        ///using Microsoft.Extensions.Configuration;
         ///using Microsoft.Extensions.DependencyInjection;
         ///using Microsoft.Extensions.Options;
         ///using Swashbuckle.AspNetCore.Swagger;
@@ -77,7 +79,7 @@ namespace ApplicationRegistry.Collector.Properties {
         ///            try
         ///            {
         ///                var host = new WebHostBuilder()
-        ///                           .UseStartup(typeof(ApplicationRegistryProgram).A [rest of string was truncated]&quot;;.
+        ///               [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string ApplicationRegistryProgram {
             get {

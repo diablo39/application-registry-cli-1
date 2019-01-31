@@ -59,7 +59,7 @@ namespace ApplicationRegistry.Collector
 
         public string Run(params string[] args)
         {
-            var parameters = new StringBuilder("run --no-launch-profile -- ");
+            var parameters = new StringBuilder("run --no-launch-profile --framework netcoreapp2.1 -- "); // TODO: no hardcoded framework
 
             if(args != null)
             {
@@ -93,6 +93,9 @@ namespace ApplicationRegistry.Collector
                 
                 if (process.ExitCode != 0)
                 {
+                    var error = process.StandardError.ReadToEnd();
+                    result.Insert(0, error);
+
                     throw new Exception("Operation failed. Error: " + result.ToString());
                 }
 
@@ -132,7 +135,7 @@ namespace ApplicationRegistry.Collector
         public void Build(string startupObject = null)
         {
             var commandBuilder = new StringBuilder("build ");
-            commandBuilder.Append(_projectFile);
+            commandBuilder.Append("\"" + _projectFile + "\"");
 
             if (!string.IsNullOrWhiteSpace(startupObject))
             {

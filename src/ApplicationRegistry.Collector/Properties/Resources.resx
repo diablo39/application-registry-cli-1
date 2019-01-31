@@ -119,8 +119,10 @@
   </resheader>
   <data name="ApplicationRegistryProgram" xml:space="preserve">
     <value>using System;
+using System.IO;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Swagger;
@@ -134,7 +136,16 @@ namespace ApplicationRegistry
             try
             {
                 var host = new WebHostBuilder()
-                           .UseStartup(typeof(ApplicationRegistryProgram).Assembly.FullName)
+                           .ConfigureAppConfiguration( ( context, builder ) =&gt;
+							{
+                                builder.Sources.Clear();
+                                builder.SetBasePath(Directory.GetCurrentDirectory());
+
+                                builder
+									.AddJsonFile( "appsettings.json", optional: true, reloadOnChange: true )
+									.AddEnvironmentVariables();
+							} )
+						   .UseStartup(typeof(ApplicationRegistryProgram).Assembly.FullName)
                            .Build();
 
                 var swaggerProvider = host.Services.GetRequiredService&lt;ISwaggerProvider&gt;();
@@ -145,6 +156,7 @@ namespace ApplicationRegistry
                 switch (swashbuckleVersion)
                 {
                     case 3:
+                    case 2:
                         Swagger3(host, swaggerProvider, swaggerProviderType);
                         break;
 
