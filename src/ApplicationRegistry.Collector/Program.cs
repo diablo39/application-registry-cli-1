@@ -11,6 +11,7 @@ using System.Net.Http;
 using System.IO;
 using Newtonsoft.Json;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace ApplicationRegistry.Collector
 {
@@ -32,7 +33,7 @@ namespace ApplicationRegistry.Collector
         public string SolutionFilePath { get; set; }
 
         [Required]
-        [Option("-p|--path <PATH>", "Path to the project", CommandOptionType.SingleValue)]
+        [Option("-p|--path <PATH>", "Path to the project file, or directory where single csproj file is located", CommandOptionType.SingleValue)]
         public string ProjectFilePath { get; set; }
 
         [Option("--output-file <PATH>", "Path to output file", CommandOptionType.SingleValue)]
@@ -48,7 +49,29 @@ namespace ApplicationRegistry.Collector
 
         public async Task<int> OnExecute()
         {
+            ProjectFilePath = ProjectFilePath.TrimEnd('"');
             ProjectFilePath = System.IO.Path.GetFullPath(ProjectFilePath);
+
+            if(!ProjectFilePath.EndsWith(".csproj")) // directory provided
+            {
+                var files = Directory.EnumerateFiles(ProjectFilePath, "*.csproj").ToList();
+
+                if(files.Count == 0)
+                {
+                    Console.Error.WriteLine("Project file not found");
+                    return -1;
+                }
+
+                if(files.Count > 1)
+                {
+                    Console.Error.WriteLine("Error: More than one project found in directory {0}", ProjectFilePath);
+                    Console.Error.WriteLine("Set full path to the prject file");
+
+                    return -1;
+                }
+
+                ProjectFilePath = files[0];
+            }
 
             if (string.IsNullOrWhiteSpace(SolutionFilePath))
             {
@@ -110,13 +133,13 @@ namespace ApplicationRegistry.Collector
 
                 if (files.Length > 1)
                 {
-                    Console.WriteLine("More than one solution file found.");
-                    Console.WriteLine("Found:");
+                    Console.Error.WriteLine("More than one solution file found.");
+                    Console.Error.WriteLine("Found:");
                     for (int i = 0; i < files.Length; i++)
                     {
-                        Console.WriteLine($"* {files[i].FullName}");
+                        Console.Error.WriteLine($"* {files[i].FullName}");
                     }
-                    Console.WriteLine("Use parametr --solution to specify correct solution file");
+                    Console.Error.WriteLine("Use parametr --solution to specify correct solution file");
                     success = false;
                     break;
                 }
