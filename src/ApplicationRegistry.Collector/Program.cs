@@ -1,13 +1,10 @@
 ﻿using McMaster.Extensions.CommandLineUtils;
 using System;
 using System.Threading.Tasks;
-using System.Xml.XPath;
-using System.Xml.Linq;
 using ApplicationRegistry.Collector.DependencyCollectors;
 using ApplicationRegistry.Collector.SpecificationGenerators;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using System.ComponentModel.DataAnnotations;
 using ApplicationRegistry.Collector.Model;
 using System.Net.Http;
@@ -30,7 +27,7 @@ namespace ApplicationRegistry.Collector
         [Required]
         [Option("-e|--env <ENV>", "Environment", CommandOptionType.SingleValue)]
         public string Environment { get; }
-    
+
         [Option("-s|--solution <solution>", "Path to the solution", CommandOptionType.SingleValue)]
         public string SolutionFilePath { get; set; }
 
@@ -77,8 +74,21 @@ namespace ApplicationRegistry.Collector
             }
             catch (Exception ex)
             {
-                
                 logger.LogCritical(ex, "Execution failed");
+
+                if (Url != null)
+                {
+                    var client = new HttpClient();
+                    client.BaseAddress = Url;
+
+                    await client.PostAsJsonAsync("/api/v1/Collector/Error", new CollectorError
+                    {
+                        ApplicationCode = Applicatnion,
+                        ErrorMessage = ex.Message + System.Environment.NewLine + ex.StackTrace,
+                        IdEnvironment = Environment,
+                        Version = Version
+                    });
+                }
             }
 
             return 0;
@@ -174,7 +184,7 @@ namespace ApplicationRegistry.Collector
 
                     var responseTest = await postResult.Content.ReadAsStringAsync();
                     Console.WriteLine(responseTest);
-                } 
+                }
             }
 
             Console.WriteLine();
@@ -192,12 +202,13 @@ namespace ApplicationRegistry.Collector
                 options.SolutionFilePath = SolutionFilePath;
             });
 
-            
+
             services.AddTransient<SwaggerSpecificationGenerator>();
             services.AddTransient<NugetDependencyCollector>();
             services.AddTransient<AutorestClientDependencyCollector>();
 
-            services.AddTransient(s => {
+            services.AddTransient(s =>
+            {
                 return new ISpecificationGenerator[]
                 {
                     s.GetRequiredService<SwaggerSpecificationGenerator>()

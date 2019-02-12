@@ -11,10 +11,13 @@ namespace ApplicationRegistry
 {
     public class ApplicationRegistryProgram
     {
+        public static string Path { get; private set; }
+
         public static int Main(string[] args)
         {
             try
             {
+                Path = args[0];
                 var host = new WebHostBuilder()
                            .ConfigureAppConfiguration((context, builder) =>
                            {
@@ -32,21 +35,22 @@ namespace ApplicationRegistry
 
                 var swaggerProviderType = swaggerProvider.GetType();
                 var swashbuckleVersion = swaggerProviderType.Assembly.GetName().Version.Major;
-
-                switch (swashbuckleVersion)
+                using (var writer = new StreamWriter(File.Create(Path)))
                 {
-                    case 3:
-                    case 2:
-                        Swagger3(host, swaggerProvider, swaggerProviderType);
-                        break;
+                    switch (swashbuckleVersion)
+                    {
+                        case 3:
+                        case 2:
+                            Swagger3(host, swaggerProvider, swaggerProviderType, writer);
+                            break;
 
-                    case 4:
-                        Swagger4(host, swaggerProvider, swaggerProviderType);
-                        break;
-                    default:
-                        return -2;
+                        case 4:
+                            Swagger4(host, swaggerProvider, swaggerProviderType, writer);
+                            break;
+                        default:
+                            return -2;
+                    }
                 }
-
                 return 0;
             }
             catch (Exception ex)
@@ -56,7 +60,7 @@ namespace ApplicationRegistry
             }
         }
 
-        private static void Swagger4(IWebHost host, ISwaggerProvider swaggerProvider, Type swaggerProviderType)
+        private static void Swagger4(IWebHost host, ISwaggerProvider swaggerProvider, Type swaggerProviderType, TextWriter writer)
         {
             var settingMemberInfo = swaggerProviderType.GetMember("_options", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             dynamic settings = ((settingMemberInfo[0] as System.Reflection.FieldInfo).GetValue(swaggerProvider));
@@ -70,12 +74,12 @@ namespace ApplicationRegistry
                 var mvcOptionsAccessor = (IOptions<MvcJsonOptions>)host.Services.GetService(typeof(IOptions<MvcJsonOptions>));
 
                 var serializer = SwaggerSerializerFactory.Create(mvcOptionsAccessor);
-                serializer.Serialize(Console.Out, swagger);
+                serializer.Serialize(writer ?? Console.Out, swagger);
 
             }
         }
 
-        private static void Swagger3(IWebHost host, ISwaggerProvider swaggerProvider, Type swaggerProviderType)
+        private static void Swagger3(IWebHost host, ISwaggerProvider swaggerProvider, Type swaggerProviderType, TextWriter writer)
         {
             var settingsMemberInfo = swaggerProviderType.GetMember("_settings", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
 
@@ -90,7 +94,7 @@ namespace ApplicationRegistry
                 var mvcOptionsAccessor = (IOptions<MvcJsonOptions>)host.Services.GetService(typeof(IOptions<MvcJsonOptions>));
 
                 var serializer = SwaggerSerializerFactory.Create(mvcOptionsAccessor);
-                serializer.Serialize(Console.Out, swagger);
+                serializer.Serialize(writer ?? Console.Out, swagger);
 
             }
         }

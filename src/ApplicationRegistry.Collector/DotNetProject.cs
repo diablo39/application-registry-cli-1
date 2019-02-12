@@ -57,6 +57,12 @@ namespace ApplicationRegistry.Collector
             File.WriteAllText(filePath, content);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        /// <exception cref="System.Exception"></exception>
         public string Run(params string[] args)
         {
             var parameters = new StringBuilder("run --no-launch-profile --framework netcoreapp2.1 -- "); // TODO: no hardcoded framework

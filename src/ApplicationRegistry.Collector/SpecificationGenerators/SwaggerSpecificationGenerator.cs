@@ -43,7 +43,22 @@ namespace ApplicationRegistry.Collector.SpecificationGenerators
 
 
                 project.Build("ApplicationRegistry.ApplicationRegistryProgram");
-                string swagger = project.Run();
+                var filePath = Path.GetTempFileName();
+                try
+                {
+                    project.Run(filePath);
+
+
+                }
+                catch (Exception)
+                {
+
+                    throw;
+                }
+
+                if (!File.Exists(filePath)) return new List<ApplicationVersionSpecification>();
+
+                var swagger = File.ReadAllText(filePath);
 
                 return new List<ApplicationVersionSpecification>() {
                     new ApplicationVersionSpecification {

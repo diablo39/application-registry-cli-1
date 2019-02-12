@@ -74,12 +74,13 @@ namespace ApplicationRegistry.Collector.Properties {
         ///{
         ///    public class ApplicationRegistryProgram
         ///    {
+        ///        public static string Path { get; private set; }
+        ///
         ///        public static int Main(string[] args)
         ///        {
         ///            try
         ///            {
-        ///                var host = new WebHostBuilder()
-        ///               [rest of string was truncated]&quot;;.
+        ///     [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string ApplicationRegistryProgram {
             get {
