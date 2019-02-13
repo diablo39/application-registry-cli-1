@@ -53,7 +53,7 @@ namespace ApplicationRegistry.Collector.DependencyCollectors
                 for (int i = 0; i < collectorDependencies.Count; i++)
                 {
                     var d = collectorDependencies[i];
-                    if (!result.Any(e => e.DependencyType == d.DependencyType && e.Name == d.Name))
+                    if (!result.Any(e => e.DependencyType == d.DependencyType && string.Equals(e.Name,d.Name, StringComparison.InvariantCultureIgnoreCase)))
                         result.Add(d);
                 } 
             }
