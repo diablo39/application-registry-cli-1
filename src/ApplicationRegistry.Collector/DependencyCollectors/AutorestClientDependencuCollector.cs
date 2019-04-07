@@ -11,6 +11,7 @@ using Microsoft.CodeAnalysis.FindSymbols;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Collections.Immutable;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace ApplicationRegistry.Collector.DependencyCollectors
 {
@@ -67,13 +68,14 @@ namespace ApplicationRegistry.Collector.DependencyCollectors
                     {
                         var methodName = member.Name.Substring(0, member.Name.Length - "WithHttpMessagesAsync".Length);
 
+                        string path = GetPath(member);
 
                         operations.Add(
                             new ApplicationVersionDependency.Operation
                             {
                                 IsInUse = false,
                                 OperationId = methodName,
-                                Path = "/value"
+                                Path = "/" + path
                             });
                     }
 
@@ -100,6 +102,30 @@ namespace ApplicationRegistry.Collector.DependencyCollectors
 
             return result;
 
+        }
+
+        private static string GetPath(IMethodSymbol member)
+        {
+            if (member.Locations.Length > 1 || member.Locations.Length == 0) return "";
+
+
+            var uriDeclaration = member.Locations[0]
+                                    .SourceTree.GetRoot()
+                                    .FindNode(member.Locations[0].SourceSpan)
+                                    .DescendantNodes()
+                                    .Where(
+                                        n => n.GetText().ToString().Contains("var _url") 
+                                        && n is LocalDeclarationStatementSyntax).ToList();
+
+            if (uriDeclaration.Count != 1) return "";
+
+            var literals = uriDeclaration
+                .FirstOrDefault()
+                .DescendantNodes()
+                .Where(n => n is LiteralExpressionSyntax && n.GetText().ToString() != "\"/\"" && n.GetText().ToString() != "\"\"" && n.GetText().ToString() != "" && n.GetText().ToString() != "\"\" ");
+
+            var path = literals.FirstOrDefault()?.GetText()?.ToString()?.Trim('"') ?? "";
+            return path;
         }
     }
 }

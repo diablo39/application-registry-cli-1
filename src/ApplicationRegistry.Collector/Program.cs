@@ -42,7 +42,7 @@ namespace ApplicationRegistry.Collector
         [Url]
         [Option("--output-url <URL>", "Url to Application Registry", CommandOptionType.SingleValue)]
         public Uri Url { get; set; }
-
+               
         public static int Main(string[] args) => CommandLineApplication.Execute<Program>(args);
 
         private static string _newLine = System.Environment.NewLine;
@@ -161,25 +161,40 @@ namespace ApplicationRegistry.Collector
 
             var specifications = new List<ApplicationVersionSpecification>();
 
+            var specificationGenerationFailed = false;
+
             using (var loggerScope = logger.BeginScope("SpecificationGeneration"))
             {
                 var specificationGenerators = serviceProvider.GetRequiredService<ISpecificationGenerator[]>();
                 for (int i = 0; i < specificationGenerators.Length; i++)
                 {
-                    var specificationGenerator = specificationGenerators[i];
-                    logger.LogDebug("Starting {0}", specificationGenerator.GetType());
-                    var specificationsGenerated = specificationGenerator.GetSpecifications();
-                    logger.LogDebug("Ending {0}", specificationGenerator.GetType());
-                    specifications.AddRange(specificationsGenerated);
+                    try
+                    {
+                        var specificationGenerator = specificationGenerators[i];
+                        logger.LogDebug("Starting {0}", specificationGenerator.GetType());
+                        var specificationsGenerated = specificationGenerator.GetSpecifications();
+                        logger.LogDebug("Ending {0}", specificationGenerator.GetType());
+                        specifications.AddRange(specificationsGenerated);
+                    }
+                    catch
+                    {
+                        specificationGenerationFailed = true;
+                    }
                 }
             }
-
 
             logger.LogTrace("Ending: specifications generation");
 
             var dependencies = serviceProvider.GetService<NugetDependencyCollector>().GetDependencies();
-            var autorestclientdependencies = serviceProvider.GetService<AutorestClientDependencyCollector>().GetDependencies();
-            dependencies.AddRange(autorestclientdependencies);
+
+            try
+            {
+                var autorestclientdependencies = serviceProvider.GetService<AutorestClientDependencyCollector>().GetDependencies();
+                dependencies.AddRange(autorestclientdependencies);
+            }
+            catch
+            {    
+            }
 
             var result = new ApplicationVersion
             {
@@ -187,7 +202,8 @@ namespace ApplicationRegistry.Collector
                 IdEnvironment = Environment,
                 Version = Version,
                 Dependencies = dependencies,
-                Specifications = specifications
+                Specifications = specifications,
+                BuildFailed = specificationGenerationFailed
             };
 
             if (!string.IsNullOrWhiteSpace(FileOutput))

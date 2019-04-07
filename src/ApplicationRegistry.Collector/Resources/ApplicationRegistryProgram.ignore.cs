@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -11,13 +12,63 @@ namespace ApplicationRegistry
 {
     public class ApplicationRegistryProgram
     {
+        public class Startup
+        {
+
+            // This method gets called by the runtime. Use this method to add services to the container.
+            public void ConfigureServices(IServiceCollection services)
+            {
+                services
+                    .AddMvcCore()
+                    .AddApiExplorer();
+
+                services.AddSwaggerGen(c =>
+                {
+                    c.SwaggerDoc("v1", new Info
+                    {
+                        Version = "v1",
+                        Title = "API",
+                        Description = "",
+                        TermsOfService = "None"
+                    });
+                });
+            }
+
+            // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+            public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+            {
+                app.UseSwagger();
+
+                // Enable middleware to serve swagger-ui (HTML, JS, CSS, etc.), 
+                // specifying the Swagger JSON endpoint.
+                app.UseSwaggerUI(c =>
+                {
+                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "API");
+                });
+            }
+
+        }
+
         public static string Path { get; private set; }
 
         public static int Main(string[] args)
         {
+            Path = args[0];
+
+            var result = RunDefault();
+
+            if (result != 0)
+                result = RunFallback();
+
+            return result;
+
+        }
+
+
+        private static int RunDefault()
+        {
             try
             {
-                Path = args[0];
                 var host = new WebHostBuilder()
                            .ConfigureAppConfiguration((context, builder) =>
                            {
@@ -59,6 +110,53 @@ namespace ApplicationRegistry
                 return -1;
             }
         }
+
+        static int RunFallback()
+        {
+            try
+            {
+                var host = new WebHostBuilder()
+                           .ConfigureAppConfiguration((context, builder) =>
+                           {
+                               builder.Sources.Clear();
+                               builder.SetBasePath(Directory.GetCurrentDirectory());
+
+                               builder
+                                   .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+                                   .AddEnvironmentVariables();
+                           })
+                           .UseStartup<ApplicationRegistryProgram.Startup>()
+                           .Build();
+
+                var swaggerProvider = host.Services.GetRequiredService<ISwaggerProvider>();
+
+                var swaggerProviderType = swaggerProvider.GetType();
+                var swashbuckleVersion = swaggerProviderType.Assembly.GetName().Version.Major;
+                using (var writer = new StreamWriter(File.Create(Path)))
+                {
+                    switch (swashbuckleVersion)
+                    {
+                        case 3:
+                        case 2:
+                            Swagger3(host, swaggerProvider, swaggerProviderType, writer);
+                            break;
+
+                        case 4:
+                            Swagger4(host, swaggerProvider, swaggerProviderType, writer);
+                            break;
+                        default:
+                            return -2;
+                    }
+                }
+                return 0;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                return -1;
+            }
+        }
+
 
         private static void Swagger4(IWebHost host, ISwaggerProvider swaggerProvider, Type swaggerProviderType, TextWriter writer)
         {

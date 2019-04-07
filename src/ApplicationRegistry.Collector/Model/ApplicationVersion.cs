@@ -20,6 +20,8 @@ namespace ApplicationRegistry.Collector.Model
 
         public string IdCommit { get; set; }
 
+        public bool BuildFailed { get; set; }
+
         // Navigation properties
 
         public List<ApplicationVersionSpecification> Specifications { get; set; }

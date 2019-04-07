@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using Xunit;
+using System.Diagnostics;
 
 namespace ApplicationRegistry.Collector.Tests
 {
@@ -28,6 +29,12 @@ namespace ApplicationRegistry.Collector.Tests
             }
 
             Console.WriteLine("test");
+        }
+
+        [Fact]
+        public void Process()
+        {
+            
         }
     }
 }
