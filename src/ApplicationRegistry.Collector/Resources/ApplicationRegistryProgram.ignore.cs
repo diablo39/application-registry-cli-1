@@ -31,6 +31,7 @@ namespace ApplicationRegistry
                         Description = "",
                         TermsOfService = "None"
                     });
+                    c.DescribeAllEnumsAsStrings();
                 });
             }
 

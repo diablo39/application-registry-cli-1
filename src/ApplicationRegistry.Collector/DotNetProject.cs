@@ -215,6 +215,25 @@ namespace ApplicationRegistry.Collector
             return backFileName;
         }
 
+        public void DisableCompilationForCshtml()
+        {
+            var directory = Path.GetDirectoryName(_projectFile);
+
+            var views = Directory.EnumerateFiles(directory, "*.cshtml", SearchOption.AllDirectories);
+            
+            var viewsRelativePath = views.Select(e => e.Substring(directory.Length + 1)).Select(e => new XElement("Content", new XAttribute("Remove", e))).ToList();
+
+            var document = XDocument.Load(_projectFile);
+
+            var root = document.Root;
+
+            var ignoreElement = new XElement("ItemGroup", viewsRelativePath);
+
+            root.Add(ignoreElement);
+
+            document.Save(_projectFile);
+        }
+
         #region IDisposable Support
         private bool _disposedValue = false; // To detect redundant calls
 

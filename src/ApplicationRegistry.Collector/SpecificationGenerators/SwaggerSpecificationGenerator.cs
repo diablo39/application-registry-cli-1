@@ -38,9 +38,10 @@ namespace ApplicationRegistry.Collector.SpecificationGenerators
                 _logger.LogDebug("Standard build finished");
 
                 _logger.LogDebug("Adding new main function");
-                project.AddFile("ApplicationRegistryProgram.cs", Resources.ApplicationRegistryProgram, true);
+                project.AddFile("ApplicationRegistryProgram.cs", Resources.ApplicationRegistryProgram_ignore, true);
                 _logger.LogDebug("New main function added");
 
+                project.DisableCompilationForCshtml();
 
                 project.Build("ApplicationRegistry.ApplicationRegistryProgram");
                 var filePath = Path.GetTempFileName();

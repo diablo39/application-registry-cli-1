@@ -63,6 +63,7 @@ namespace ApplicationRegistry.Collector.Properties {
         /// <summary>
         ///   Looks up a localized string similar to using System;
         ///using System.IO;
+        ///using Microsoft.AspNetCore.Builder;
         ///using Microsoft.AspNetCore.Hosting;
         ///using Microsoft.AspNetCore.Mvc;
         ///using Microsoft.Extensions.Configuration;
@@ -74,17 +75,14 @@ namespace ApplicationRegistry.Collector.Properties {
         ///{
         ///    public class ApplicationRegistryProgram
         ///    {
-        ///        public static string Path { get; private set; }
-        ///
-        ///        public static int Main(string[] args)
+        ///        public class Startup
         ///        {
-        ///            try
-        ///            {
-        ///     [rest of string was truncated]&quot;;.
+        ///
+        ///            // This method gets called by the runtime. Use this method to [rest of string was truncated]&quot;;.
         /// </summary>
-        internal static string ApplicationRegistryProgram {
+        internal static string ApplicationRegistryProgram_ignore {
             get {
-                return ResourceManager.GetString("ApplicationRegistryProgram", resourceCulture);
+                return ResourceManager.GetString("ApplicationRegistryProgram_ignore", resourceCulture);
             }
         }
     }
