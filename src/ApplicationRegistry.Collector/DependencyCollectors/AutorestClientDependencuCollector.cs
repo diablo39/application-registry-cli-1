@@ -106,26 +106,33 @@ namespace ApplicationRegistry.Collector.DependencyCollectors
 
         private static string GetPath(IMethodSymbol member)
         {
-            if (member.Locations.Length > 1 || member.Locations.Length == 0) return "";
+            try
+            {
+                if (member.Locations.Length > 1 || member.Locations.Length == 0) return "";
 
 
-            var uriDeclaration = member.Locations[0]
-                                    .SourceTree.GetRoot()
-                                    .FindNode(member.Locations[0].SourceSpan)
-                                    .DescendantNodes()
-                                    .Where(
-                                        n => n.GetText().ToString().Contains("var _url") 
-                                        && n is LocalDeclarationStatementSyntax).ToList();
+                var uriDeclaration = member.Locations[0]
+                                        .SourceTree.GetRoot()
+                                        .FindNode(member.Locations[0].SourceSpan)
+                                        .DescendantNodes()
+                                        .Where(
+                                            n => n.GetText().ToString().Contains("var _url")
+                                            && n is LocalDeclarationStatementSyntax).ToList();
 
-            if (uriDeclaration.Count != 1) return "";
+                if (uriDeclaration.Count != 1) return "";
 
-            var literals = uriDeclaration
-                .FirstOrDefault()
-                .DescendantNodes()
-                .Where(n => n is LiteralExpressionSyntax && n.GetText().ToString() != "\"/\"" && n.GetText().ToString() != "\"\"" && n.GetText().ToString() != "" && n.GetText().ToString() != "\"\" ");
+                var literals = uriDeclaration
+                    .FirstOrDefault()
+                    .DescendantNodes()
+                    .Where(n => n is LiteralExpressionSyntax && n.GetText().ToString() != "\"/\"" && n.GetText().ToString() != "\"\"" && n.GetText().ToString() != "" && n.GetText().ToString() != "\"\" ");
 
-            var path = literals.FirstOrDefault()?.GetText()?.ToString()?.Trim('"') ?? "";
-            return path;
+                var path = literals.FirstOrDefault()?.GetText()?.ToString()?.Trim('"') ?? "";
+                return path;
+            }
+            catch (Exception)
+            {
+                return "PROCESSING_ERROR";
+            }
         }
     }
 }

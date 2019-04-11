@@ -81,13 +81,12 @@ namespace ApplicationRegistry.Collector
                 RedirectStandardInput = true,
                 
             };
-            
+            var result = new StringBuilder();
+            var exitedCode = 0;
             using (var process = new Process())
             {
                 process.StartInfo = start;
                 process.Start();
-
-                var result = new StringBuilder();
 
                 while (!process.HasExited)
                 {
@@ -96,17 +95,23 @@ namespace ApplicationRegistry.Collector
                     result.Append(lines);
                 }
 
-                
+                exitedCode = process.ExitCode;
+
                 if (process.ExitCode != 0)
                 {
                     var error = process.StandardError.ReadToEnd();
                     result.Insert(0, error);
-
-                    throw new Exception("Operation failed. Error: " + result.ToString());
                 }
-
-                return result.ToString();
             }
+
+            if(exitedCode != 0)
+            {
+                Thread.Sleep(5000); // TODO: this is wrong!!!
+
+                throw new Exception("Operation failed. Error: " + result.ToString());
+            }
+
+            return result.ToString();
         }
 
         public void AddPackage(string packageName, string version = null)
@@ -143,10 +148,8 @@ namespace ApplicationRegistry.Collector
             var commandBuilder = new StringBuilder("build ");
             commandBuilder.Append("\"" + _projectFile + "\"");
 
-            if (!string.IsNullOrWhiteSpace(startupObject))
-            {
-                commandBuilder.AppendFormat(" /p:StartupObject={0}", startupObject);
-            }
+            if(!string.IsNullOrWhiteSpace(startupObject))
+                SetStartupObject(startupObject);
 
             var start = new ProcessStartInfo(DotNetExe.FullPathOrDefault(), commandBuilder.ToString())
             {
@@ -232,6 +235,31 @@ namespace ApplicationRegistry.Collector
             root.Add(ignoreElement);
 
             document.Save(_projectFile);
+        }
+
+        public void SetStartupObject(string startupObject)
+        {
+            var document = XDocument.Load(_projectFile);
+
+            var root = document.Root;
+
+            var existingStartupObjects = root.Descendants("StartupObject").ToList();
+
+            if (existingStartupObjects.Count != 0)
+            {
+                for (int i = 0; i < existingStartupObjects.Count; i++)
+                {
+                    existingStartupObjects[i].Value = startupObject;
+                }
+            }
+            else
+            {
+                var e = new XElement("PropertyGroup", new XElement("StartupObject", startupObject));
+                root.Add(e);
+            }
+
+            document.Save(_projectFile);
+
         }
 
         #region IDisposable Support

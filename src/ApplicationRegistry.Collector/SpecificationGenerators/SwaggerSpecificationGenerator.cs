@@ -48,12 +48,9 @@ namespace ApplicationRegistry.Collector.SpecificationGenerators
                 try
                 {
                     project.Run(filePath);
-
-
                 }
                 catch (Exception)
                 {
-
                     throw;
                 }
 

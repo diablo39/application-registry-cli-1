@@ -59,7 +59,11 @@ namespace ApplicationRegistry
             var result = RunDefault();
 
             if (result != 0)
+            {
+                Console.WriteLine();
+                Console.WriteLine("Running fallback mechanism");
                 result = RunFallback();
+            }
 
             return result;
 

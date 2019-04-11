@@ -157,44 +157,11 @@ namespace ApplicationRegistry.Collector
 
             logger.LogInformation($"Starting application with parameters: {_newLine}\turl: {Url}{_newLine}\tApplication: {Applicatnion}{_newLine}\tPath: {this.ProjectFilePath}");
 
-            logger.LogTrace("Starting specification generation");
+            (List<ApplicationVersionDependency> dependencies, bool collectDependenciesFailed) = CollectDependencies(serviceProvider);
 
-            var specifications = new List<ApplicationVersionSpecification>();
 
-            var specificationGenerationFailed = false;
+            (List<ApplicationVersionSpecification> specifications, bool specificationGenerationFailed) = GenerateSpecifications(serviceProvider, logger);
 
-            using (var loggerScope = logger.BeginScope("SpecificationGeneration"))
-            {
-                var specificationGenerators = serviceProvider.GetRequiredService<ISpecificationGenerator[]>();
-                for (int i = 0; i < specificationGenerators.Length; i++)
-                {
-                    try
-                    {
-                        var specificationGenerator = specificationGenerators[i];
-                        logger.LogDebug("Starting {0}", specificationGenerator.GetType());
-                        var specificationsGenerated = specificationGenerator.GetSpecifications();
-                        logger.LogDebug("Ending {0}", specificationGenerator.GetType());
-                        specifications.AddRange(specificationsGenerated);
-                    }
-                    catch
-                    {
-                        specificationGenerationFailed = true;
-                    }
-                }
-            }
-
-            logger.LogTrace("Ending: specifications generation");
-
-            var dependencies = serviceProvider.GetService<NugetDependencyCollector>().GetDependencies();
-
-            try
-            {
-                var autorestclientdependencies = serviceProvider.GetService<AutorestClientDependencyCollector>().GetDependencies();
-                dependencies.AddRange(autorestclientdependencies);
-            }
-            catch
-            {    
-            }
 
             var result = new ApplicationVersion
             {
@@ -203,7 +170,9 @@ namespace ApplicationRegistry.Collector
                 Version = Version,
                 Dependencies = dependencies,
                 Specifications = specifications,
-                BuildFailed = specificationGenerationFailed
+                SpecificationGenerationFailed = specificationGenerationFailed,
+                DependencyFillectionFailed = collectDependenciesFailed,
+                ToolsVersion = typeof(Program).Assembly.GetName().Version.ToString()
             };
 
             if (!string.IsNullOrWhiteSpace(FileOutput))
@@ -227,6 +196,57 @@ namespace ApplicationRegistry.Collector
             }
 
             Console.WriteLine();
+        }
+
+        private static (List<ApplicationVersionDependency> dependencies, bool collectDependenciesFailed) CollectDependencies(ServiceProvider serviceProvider)
+        {
+            var dependencies = new List<ApplicationVersionDependency>();
+            var collectDependenciesFailed = false;
+            try
+            {
+                var nugetDependencies = serviceProvider.GetService<NugetDependencyCollector>().GetDependencies();
+                dependencies.AddRange(nugetDependencies);
+
+                var autorestclientdependencies = serviceProvider.GetService<AutorestClientDependencyCollector>().GetDependencies();
+                dependencies.AddRange(autorestclientdependencies);
+            }
+            catch
+            {
+                collectDependenciesFailed = true;
+            }
+
+            return (dependencies, collectDependenciesFailed);
+        }
+
+        private static (List<ApplicationVersionSpecification> specifications, bool specificationGenerationFailed) GenerateSpecifications(ServiceProvider serviceProvider, ILogger<Program> logger)
+        {
+            logger.LogTrace("Starting specification generation");
+
+            var specifications = new List<ApplicationVersionSpecification>();
+            var specificationGenerationFailed = false;
+            using (var loggerScope = logger.BeginScope("SpecificationGeneration"))
+            {
+                var specificationGenerators = serviceProvider.GetRequiredService<ISpecificationGenerator[]>();
+                for (int i = 0; i < specificationGenerators.Length; i++)
+                {
+                    try
+                    {
+                        var specificationGenerator = specificationGenerators[i];
+                        logger.LogDebug("Starting {0}", specificationGenerator.GetType());
+                        var specificationsGenerated = specificationGenerator.GetSpecifications();
+                        logger.LogDebug("Ending {0}", specificationGenerator.GetType());
+                        specifications.AddRange(specificationsGenerated);
+                    }
+                    catch
+                    {
+                        specificationGenerationFailed = true;
+                    }
+                }
+            }
+
+            logger.LogTrace("Ending: specifications generation");
+
+            return (specifications, specificationGenerationFailed);
         }
 
         private void ConfigureServices(IServiceCollection services)

@@ -3,6 +3,7 @@ using System.IO;
 using Xunit;
 using System.Diagnostics;
 using System.Linq;
+using System.Xml.Linq;
 
 namespace ApplicationRegistry.Collector.Tests
 {
@@ -44,6 +45,28 @@ namespace ApplicationRegistry.Collector.Tests
             var views = Directory.EnumerateFiles(directory, "*.cshtml", SearchOption.AllDirectories);
             var notCompilePattern = "<None Include=\"{0}\" />";
             var viewsRelativePath = views.Select(e => e.Substring(directory.Length + 1)).Select(e=> string.Format(notCompilePattern, e)).ToList();
+        }
+
+        [Fact]
+        public void CsprojStartupObject()
+        {
+            var document = XDocument.Parse(Properties.Resources.CsProj);
+
+            var root = document.Root;
+
+            var element = root.Descendants("StartupObject").ToList();
+
+            if(element.Count != 0)
+            {
+                element[0].Value = "dupa";
+            }
+            else
+            {
+                var e = new XElement("PropertyGroup", new XElement("StartupObject", ""));
+                root.Add(e);
+            }
+
+            element = root.Descendants("StartupObject").ToList();
         }
     }
 }

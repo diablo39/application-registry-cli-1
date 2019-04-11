@@ -20,12 +20,17 @@ namespace ApplicationRegistry.Collector.Model
 
         public string IdCommit { get; set; }
 
-        public bool BuildFailed { get; set; }
+        public bool SpecificationGenerationFailed { get; set; }
+
+        public bool DependencyFillectionFailed { get; set; }
+
+        public string ToolsVersion { get; set; }
 
         // Navigation properties
 
         public List<ApplicationVersionSpecification> Specifications { get; set; }
 
         public List<ApplicationVersionDependency> Dependencies { get; set; }
+        
     }
 }
