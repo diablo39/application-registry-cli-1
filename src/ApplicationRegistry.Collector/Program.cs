@@ -21,24 +21,33 @@ namespace ApplicationRegistry.Collector
                 })
                 .ConfigureServices((context, services) =>
                 {
-                    services.AddTransient<NugetDependencyCollector>();
-                    services.AddTransient<DependencyCollectorBatch<NugetDependencyCollector>>();
+                    services // Add dependency collectors
+                        .AddTransient<NugetDependencyCollector>()
+                        .AddTransient<AutorestClientDependencyCollector>();
+         
+                    services // Add specification generators
+                        .AddTransient<SwaggerSpecificationGenerator>()
+                        .AddTransient<DatabaseScpecificationGenerator>();
+        
 
-                    services.AddTransient<AutorestClientDependencyCollector>();
-                    services.AddTransient<DependencyCollectorBatch<AutorestClientDependencyCollector>>();
-
-                    services.AddTransient<SwaggerSpecificationGenerator>();
-                    services.AddTransient<SpecificationGeneratorBatch<SwaggerSpecificationGenerator>>();
+                    services
+                        .AddSingleton(new BatchContext())
+                        .AddTransient<SanitazeApplicationArgumentsBatch>()
+                        .AddTransient<SpecificationGeneratorBatch<SwaggerSpecificationGenerator>>()
+                        .AddTransient<DependencyCollectorBatch<AutorestClientDependencyCollector>>()
+                        .AddTransient<DependencyCollectorBatch<NugetDependencyCollector>>()
+                        .AddTransient<ResultToFileSaveBatch>()
+                        .AddTransient<ResultToHostSendBatch>();
 
                     services
                         .AddSingleton(PhysicalConsole.Singleton)
-                        .AddSingleton(new BatchContext())
-                        .AddTransient<SanitazeApplicationArgumentsBatch>()
                         .AddTransient<IEnumerable<IBatch>>(s => new List<IBatch> {
                             s.GetRequiredService<SanitazeApplicationArgumentsBatch>(),
                             s.GetRequiredService<DependencyCollectorBatch<NugetDependencyCollector>>(),
                             s.GetRequiredService<DependencyCollectorBatch<AutorestClientDependencyCollector>>(),
                             s.GetRequiredService<SpecificationGeneratorBatch<SwaggerSpecificationGenerator>>(),
+                            s.GetRequiredService<ResultToFileSaveBatch>(),
+                            s.GetRequiredService<ResultToHostSendBatch>(),
                         });
                 })
                 .RunCommandLineApplicationAsync<Worker>(args)

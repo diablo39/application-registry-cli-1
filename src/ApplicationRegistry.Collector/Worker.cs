@@ -73,6 +73,9 @@ namespace ApplicationRegistry.Collector
                 batch.Process(_batchContext);
             }
   
+
+
+
             var serviceCollection = new ServiceCollection();
 
             ConfigureServices(serviceCollection);
