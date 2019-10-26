@@ -43,6 +43,10 @@ namespace ApplicationRegistry.Collector.Batches
                     return Task.FromResult(BatchResult.CreateFailResult());
                 }
             }
+            else
+            {
+                context.Arguments.SolutionFilePath = Path.GetFullPath(context.Arguments.SolutionFilePath);
+            }
 
             return Task.FromResult(BatchResult.CreateSuccessResult());
         }

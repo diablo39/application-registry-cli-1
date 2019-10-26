@@ -40,11 +40,12 @@ namespace ApplicationRegistry.Collector
                         .AddSingleton(PhysicalConsole.Singleton)
                         .AddTransient<IEnumerable<IBatch>>(s => new List<IBatch> {
                             s.GetRequiredService<SanitazeApplicationArgumentsBatch>(),
-                            s.GetRequiredService<DependencyCollectorBatch<NugetDependencyCollector>>(),
-                            s.GetRequiredService<DependencyCollectorBatch<AutorestClientDependencyCollector>>(),
-                            s.GetRequiredService<SpecificationGeneratorBatch<SwaggerSpecificationGenerator>>(),
-                            s.GetRequiredService<ResultToFileSaveBatch>(),
-                            s.GetRequiredService<ResultToHostSendBatch>(),
+
+                            //s.GetRequiredService<DependencyCollectorBatch<NugetDependencyCollector>>(),
+                            //s.GetRequiredService<DependencyCollectorBatch<AutorestClientDependencyCollector>>(),
+                            //s.GetRequiredService<SpecificationGeneratorBatch<SwaggerSpecificationGenerator>>(),
+                            //s.GetRequiredService<ResultToFileSaveBatch>(),
+                            //s.GetRequiredService<ResultToHostSendBatch>(),
                         });
                 })
                 .ConfigureLogging((context, builder) =>
