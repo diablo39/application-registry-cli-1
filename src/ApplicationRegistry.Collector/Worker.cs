@@ -70,41 +70,31 @@ namespace ApplicationRegistry.Collector
 
             foreach (var batch in batches)
             {
-                batch.Process(_batchContext);
+                await batch.ProcessAsync(_batchContext);
             }
   
+            //try
+            //{
+            //    await RunCollectorAsync(serviceProvider);
+            //}
+            //catch (Exception ex)
+            //{
+            //    logger.LogCritical(ex, "Execution failed");
 
+            //    if (Url != null)
+            //    {
+            //        var client = new HttpClient();
+            //        client.BaseAddress = Url;
 
-
-            var serviceCollection = new ServiceCollection();
-
-            ConfigureServices(serviceCollection);
-
-            var serviceProvider = serviceCollection.BuildServiceProvider();
-            var logger = serviceProvider.GetService<ILogger<Program>>();
-
-            try
-            {
-                await RunCollectorAsync(serviceProvider);
-            }
-            catch (Exception ex)
-            {
-                logger.LogCritical(ex, "Execution failed");
-
-                if (Url != null)
-                {
-                    var client = new HttpClient();
-                    client.BaseAddress = Url;
-
-                    await client.PostAsJsonAsync("/api/v1/Collector/Error", new CollectorError
-                    {
-                        ApplicationCode = Applicatnion,
-                        ErrorMessage = ex.Message + System.Environment.NewLine + ex.StackTrace,
-                        IdEnvironment = Environment,
-                        Version = Version
-                    });
-                }
-            }
+            //        await client.PostAsJsonAsync("/api/v1/Collector/Error", new CollectorError
+            //        {
+            //            ApplicationCode = Applicatnion,
+            //            ErrorMessage = ex.Message + System.Environment.NewLine + ex.StackTrace,
+            //            IdEnvironment = Environment,
+            //            Version = Version
+            //        });
+            //    }
+            //}
 
             return 0;
         }
@@ -209,37 +199,7 @@ namespace ApplicationRegistry.Collector
             return (specifications, specificationGenerationFailed);
         }
 
-        private void ConfigureServices(IServiceCollection services)
-        {
-            services
-                .AddLogging(configure => configure.AddConsole())
-                .Configure<LoggerFilterOptions>(options => options.MinLevel = LogLevel.Trace);
 
-            services.AddOptions<ApplicationOptions>().Configure(options =>
-            {
-                options.ProjectFilePath = ProjectFilePath;
-                options.SolutionFilePath = SolutionFilePath;
-            });
-
-
-            services.AddTransient<SwaggerSpecificationGenerator>();
-            services.AddTransient<NugetDependencyCollector>();
-            services.AddTransient<AutorestClientDependencyCollector>();
-
-            services.AddTransient(s =>
-            {
-                return new ISpecificationGenerator[]
-                {
-                    s.GetRequiredService<SwaggerSpecificationGenerator>()
-                };
-            });
-
-            services.AddTransient(s => new IDependencyCollector[]
-            {
-                s.GetRequiredService<NugetDependencyCollector>(),
-                s.GetRequiredService<AutorestClientDependencyCollector>()
-            });
-        }
 
     }
 }

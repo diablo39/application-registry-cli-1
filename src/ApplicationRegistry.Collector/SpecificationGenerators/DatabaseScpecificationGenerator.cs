@@ -1,7 +1,6 @@
-﻿using System;
+﻿using ApplicationRegistry.Collector.Model;
+using System;
 using System.Collections.Generic;
-using System.Text;
-using ApplicationRegistry.Collector.Model;
 
 namespace ApplicationRegistry.Collector.SpecificationGenerators
 {

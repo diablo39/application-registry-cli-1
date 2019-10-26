@@ -1,17 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using ApplicationRegistry.Collector.Model;
+﻿using ApplicationRegistry.Collector.Model;
 using Buildalyzer;
 using Buildalyzer.Workspaces;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.FindSymbols;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
+using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
+using System.Linq;
 
 namespace ApplicationRegistry.Collector.DependencyCollectors
 {
@@ -19,12 +16,17 @@ namespace ApplicationRegistry.Collector.DependencyCollectors
     {
         private const string _restClientBaseClassName = "Microsoft.Rest.ServiceClient`1";
 
-        private readonly IOptions<ApplicationOptions> _options;
+        readonly string _projectFilePath;
+
+        readonly string _solutionFilePath;
+
         private readonly ILogger<AutorestClientDependencyCollector> _logger;
 
-        public AutorestClientDependencyCollector(IOptions<ApplicationOptions> options, ILogger<AutorestClientDependencyCollector> logger)
+        public AutorestClientDependencyCollector(BatchContext context, ILogger<AutorestClientDependencyCollector> logger)
         {
-            _options = options;
+            _projectFilePath = context.Arguments.ProjectFilePath;
+            _solutionFilePath = context.Arguments.SolutionFilePath;
+
             _logger = logger;
         }
 
@@ -34,9 +36,9 @@ namespace ApplicationRegistry.Collector.DependencyCollectors
 
             try
             {
-                var projectFile = _options.Value.ProjectFilePath;
+                var projectFile = _projectFilePath;
 
-                AnalyzerManager manager = new AnalyzerManager(_options.Value.SolutionFilePath);
+                AnalyzerManager manager = new AnalyzerManager(_solutionFilePath);
 
                 var projects = manager.Projects;
 

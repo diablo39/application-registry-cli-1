@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Text;
-using ApplicationRegistry.Collector.Model;
-using ApplicationRegistry.Collector.Properties;
-using McMaster.Extensions.CommandLineUtils;
+﻿using ApplicationRegistry.Collector.Model;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
+using System;
+using System.Collections.Generic;
+using System.IO;
 using Resources = ApplicationRegistry.Collector.Properties.Resources;
 
 namespace ApplicationRegistry.Collector.SpecificationGenerators
@@ -19,9 +14,9 @@ namespace ApplicationRegistry.Collector.SpecificationGenerators
         private readonly ILogger<SwaggerSpecificationGenerator> _logger;
         private readonly ILoggerFactory _loggerFactory;
 
-        public SwaggerSpecificationGenerator(IOptions<ApplicationOptions> options, ILoggerFactory loggerFactory)
+        public SwaggerSpecificationGenerator(BatchContext context, ILoggerFactory loggerFactory)
         {
-            _projectFilePath = options.Value.ProjectFilePath;
+            _projectFilePath = context.Arguments.ProjectFilePath;
             _projectDirectory = new FileInfo(_projectFilePath).Directory.FullName;
             _logger = loggerFactory.CreateLogger<SwaggerSpecificationGenerator>();
             _loggerFactory = loggerFactory;
@@ -30,9 +25,8 @@ namespace ApplicationRegistry.Collector.SpecificationGenerators
         public List<ApplicationVersionSpecification> GetSpecifications()
         {
             _logger.LogDebug("Starting swagger generation process");
-            using (var project = new DotNetProject(_loggerFactory.CreateLogger<DotNetProject>(),  _projectFilePath))
+            using (var project = new DotNetProject(_loggerFactory.CreateLogger<DotNetProject>(), _projectFilePath))
             {
-
                 _logger.LogDebug("Starting standard build of the application");
                 project.Build();
                 _logger.LogDebug("Standard build finished");
@@ -45,6 +39,7 @@ namespace ApplicationRegistry.Collector.SpecificationGenerators
 
                 project.Build("ApplicationRegistry.ApplicationRegistryProgram");
                 var filePath = Path.GetTempFileName();
+
                 try
                 {
                     project.Run(filePath);

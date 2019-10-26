@@ -1,12 +1,10 @@
-﻿using System;
+﻿using ApplicationRegistry.Collector.Model;
+using System;
 using System.Collections.Generic;
-using System.Text;
+using System.IO;
+using System.Linq;
 using System.Xml.Linq;
 using System.Xml.XPath;
-using System.IO;
-using ApplicationRegistry.Collector.Model;
-using System.Linq;
-using Microsoft.Extensions.Options;
 
 namespace ApplicationRegistry.Collector.DependencyCollectors
 {
@@ -14,9 +12,9 @@ namespace ApplicationRegistry.Collector.DependencyCollectors
     {
         private readonly string _projectFilePath;
 
-        public NugetDependencyCollector(IOptions<ApplicationOptions> options)
+        public NugetDependencyCollector(BatchContext context)
         {
-            _projectFilePath = options.Value.ProjectFilePath;
+            _projectFilePath = context.Arguments.ProjectFilePath;
         }
 
         private NugetDependencyCollector(string referencedProject)
@@ -32,7 +30,7 @@ namespace ApplicationRegistry.Collector.DependencyCollectors
             var xml = XDocument.Load(_projectFilePath);
 
             var packageReferences = xml.XPathSelectElements("//PackageReference");
-           
+
 
             foreach (var item in packageReferences)
             {
@@ -53,11 +51,11 @@ namespace ApplicationRegistry.Collector.DependencyCollectors
                 for (int i = 0; i < collectorDependencies.Count; i++)
                 {
                     var d = collectorDependencies[i];
-                    if (!result.Any(e => e.DependencyType == d.DependencyType && string.Equals(e.Name,d.Name, StringComparison.InvariantCultureIgnoreCase)))
+                    if (!result.Any(e => e.DependencyType == d.DependencyType && string.Equals(e.Name, d.Name, StringComparison.InvariantCultureIgnoreCase)))
                         result.Add(d);
-                } 
+                }
             }
-            
+
             return result;
         }
     }

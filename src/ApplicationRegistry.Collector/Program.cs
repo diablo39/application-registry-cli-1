@@ -14,21 +14,18 @@ namespace ApplicationRegistry.Collector
         public static int Main(string[] args)
         {
             return new HostBuilder()
-                .ConfigureLogging((context, builder) =>
-                {
-                    builder
-                        .AddConsole();
-                })
                 .ConfigureServices((context, services) =>
                 {
+                    services
+                        .AddLogging();
+
                     services // Add dependency collectors
                         .AddTransient<NugetDependencyCollector>()
                         .AddTransient<AutorestClientDependencyCollector>();
-         
+
                     services // Add specification generators
                         .AddTransient<SwaggerSpecificationGenerator>()
                         .AddTransient<DatabaseScpecificationGenerator>();
-        
 
                     services
                         .AddSingleton(new BatchContext())
@@ -49,6 +46,13 @@ namespace ApplicationRegistry.Collector
                             s.GetRequiredService<ResultToFileSaveBatch>(),
                             s.GetRequiredService<ResultToHostSendBatch>(),
                         });
+                })
+                .ConfigureLogging((context, builder) =>
+                {
+                    builder
+                        .AddConsole();
+
+                    builder.SetMinimumLevel(LogLevel.Trace);
                 })
                 .RunCommandLineApplicationAsync<Worker>(args)
                 .GetAwaiter()

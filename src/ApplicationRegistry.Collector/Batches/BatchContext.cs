@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace ApplicationRegistry.Collector
 {
@@ -27,7 +28,7 @@ namespace ApplicationRegistry.Collector
 
     interface IBatch
     {
-        BatchResult Process(BatchContext context);
+        Task<BatchResult> ProcessAsync(BatchContext context);
     }
 
     struct BatchResult

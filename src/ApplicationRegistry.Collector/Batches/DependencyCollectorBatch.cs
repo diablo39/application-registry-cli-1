@@ -1,11 +1,13 @@
-﻿namespace ApplicationRegistry.Collector.Batches
+﻿using System.Threading.Tasks;
+
+namespace ApplicationRegistry.Collector.Batches
 {
     class DependencyCollectorBatch<T> : IBatch
         where T : IDependencyCollector
     {
-        public BatchResult Process(BatchContext context)
+        public Task<BatchResult> ProcessAsync(BatchContext context)
         {
-            throw new System.NotImplementedException();
+            return Task.FromResult(BatchResult.CreateSuccessResult());
         }
     }
 }
