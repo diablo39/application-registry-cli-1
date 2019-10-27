@@ -1,6 +1,6 @@
-﻿using ApplicationRegistry.Collector.DependencyCollectors;
+﻿using ApplicationRegistry.Collector.Batches;
+using ApplicationRegistry.Collector.DependencyCollectors;
 using ApplicationRegistry.Collector.Model;
-using ApplicationRegistry.Collector.SpecificationGenerators;
 using McMaster.Extensions.CommandLineUtils;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -10,9 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.IO;
-using System.Linq;
 using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace ApplicationRegistry.Collector
@@ -20,8 +18,8 @@ namespace ApplicationRegistry.Collector
     class Worker
     {
         private readonly string _newLine = System.Environment.NewLine;
-        private readonly BatchContext _batchContext;
-        private readonly IServiceProvider _serviceProvider;
+
+        private readonly BatchRunner _batchRunner;
 
         [Required]
         [Option("-v|--version <VERSION>", "Version of the application", CommandOptionType.SingleValue)]
@@ -50,29 +48,29 @@ namespace ApplicationRegistry.Collector
         [Option("--output-url <URL>", "Url to Application Registry", CommandOptionType.SingleValue)]
         public Uri Url { get; set; }
 
-        public Worker(BatchContext batchContext ,IServiceProvider serviceProvider, IHostingEnvironment environment)
+        public Worker(IHostingEnvironment environment, BatchRunner batchRunner)
         {
-            _batchContext = batchContext;
-            _serviceProvider = serviceProvider;
+
+            _batchRunner = batchRunner;
         }
 
         public async Task<int> OnExecute()
         {
-            _batchContext.Arguments.Applicatnion = Applicatnion;
-            _batchContext.Arguments.Environment = Environment;
-            _batchContext.Arguments.FileOutput = FileOutput;
-            _batchContext.Arguments.ProjectFilePath = ProjectFilePath;
-            _batchContext.Arguments.SolutionFilePath = SolutionFilePath;
-            _batchContext.Arguments.Url = Url;
-            _batchContext.Arguments.Version = Version;
-
-            var batches = _serviceProvider.GetRequiredService<IEnumerable<IBatch>>();
-
-            foreach (var batch in batches)
+            var arguments = new BatchProcessArguments
             {
-                await batch.ProcessAsync(_batchContext);
-            }
-  
+                Applicatnion = Applicatnion,
+                Environment = Environment,
+                FileOutput = FileOutput,
+                ProjectFilePath = ProjectFilePath,
+                SolutionFilePath = SolutionFilePath,
+                Url = Url,
+                Version = Version
+            };
+
+            var batchContext = new BatchContext(arguments);
+
+            await _batchRunner.RunBatchesAsync(batchContext);
+
             //try
             //{
             //    await RunCollectorAsync(serviceProvider);
@@ -99,7 +97,7 @@ namespace ApplicationRegistry.Collector
             return 0;
         }
 
-       
+
 
         private async Task RunCollectorAsync(ServiceProvider serviceProvider)
         {
@@ -113,7 +111,7 @@ namespace ApplicationRegistry.Collector
             (List<ApplicationVersionSpecification> specifications, bool specificationGenerationFailed) = GenerateSpecifications(serviceProvider, logger);
 
 
-            var result = new ApplicationVersion
+            var result = new ApplicationInfo
             {
                 ApplicationCode = Applicatnion,
                 IdEnvironment = Environment,

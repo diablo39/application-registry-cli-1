@@ -7,7 +7,7 @@ namespace ApplicationRegistry.Collector.Batches
 {
     class SanitazeApplicationArgumentsBatch : IBatch
     {
-        public Task<BatchResult> ProcessAsync(BatchContext context)
+        public Task<BatchExecutionResult> ProcessAsync(BatchContext context)
         {
             context.Arguments.ProjectFilePath = context.Arguments.ProjectFilePath.TrimEnd('"');
             context.Arguments.ProjectFilePath = System.IO.Path.GetFullPath(context.Arguments.ProjectFilePath);
@@ -19,7 +19,7 @@ namespace ApplicationRegistry.Collector.Batches
                 if (files.Count == 0)
                 {
                     Console.Error.WriteLine("Project file not found"); // TODO: try to use result as store
-                    return Task.FromResult(BatchResult.CreateFailResult());
+                    return Task.FromResult(BatchExecutionResult.CreateFailResult());
                 }
 
                 if (files.Count > 1)
@@ -27,7 +27,7 @@ namespace ApplicationRegistry.Collector.Batches
                     Console.Error.WriteLine("Error: More than one project found in directory {0}", context.Arguments.ProjectFilePath); // TODO: try to use result as store
                     Console.Error.WriteLine("Set full path to the project file");
 
-                    return Task.FromResult(BatchResult.CreateFailResult());
+                    return Task.FromResult(BatchExecutionResult.CreateFailResult());
                 }
 
                 context.Arguments.ProjectFilePath = files[0];
@@ -40,7 +40,7 @@ namespace ApplicationRegistry.Collector.Batches
                 if (!success)
                 {
                     Console.Error.WriteLine("Solution file can't be found, try to set seolution file location explicitly"); // TODO: try to use result as store
-                    return Task.FromResult(BatchResult.CreateFailResult());
+                    return Task.FromResult(BatchExecutionResult.CreateFailResult());
                 }
             }
             else
@@ -48,7 +48,7 @@ namespace ApplicationRegistry.Collector.Batches
                 context.Arguments.SolutionFilePath = Path.GetFullPath(context.Arguments.SolutionFilePath);
             }
 
-            return Task.FromResult(BatchResult.CreateSuccessResult());
+            return Task.FromResult(BatchExecutionResult.CreateSuccessResult());
         }
 
         private bool FindSolutionFile(BatchContext context)

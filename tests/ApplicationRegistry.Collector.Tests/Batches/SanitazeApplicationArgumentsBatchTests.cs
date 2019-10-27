@@ -17,10 +17,11 @@ namespace ApplicationRegistry.Collector.Tests.Batches
         public async Task Batch_Schould_Sanitaze_Path(string projectFilePath, string solutionFilePath, string expectedProjectFile, string expectedSolutionFile)
         {
             var batch = new SanitazeApplicationArgumentsBatch();
-            var context = new BatchContext();
-            context.Arguments.ProjectFilePath = projectFilePath;
-            context.Arguments.SolutionFilePath = solutionFilePath;
-
+            var context = new BatchContext(new BatchProcessArguments {
+                ProjectFilePath = projectFilePath,
+                SolutionFilePath = solutionFilePath
+            });
+            
             var result = await batch.ProcessAsync(context);
 
             var currentProjectFile = context.Arguments.ProjectFilePath;
@@ -28,7 +29,7 @@ namespace ApplicationRegistry.Collector.Tests.Batches
 
 
             result.Should().NotBeNull();
-            result.Success.Should().BeTrue();
+            result.Result.Should().Be(BatchExecutionResult.ExecutionResult.Success);
             currentProjectFile.Should().Be(expectedProjectFile);
             currentSolutionFile.Should().Be(expectedSolutionFile);
         }

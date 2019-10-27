@@ -5,9 +5,9 @@ namespace ApplicationRegistry.Collector.Batches
 {
     class ResultToHostSendBatch : IBatch
     {
-        public Task<BatchResult> ProcessAsync(BatchContext context)
+        public Task<BatchExecutionResult> ProcessAsync(BatchContext context)
         {
-            return Task.FromResult(BatchResult.CreateSuccessResult());
+            return Task.FromResult(BatchExecutionResult.CreateSuccessResult());
         }
     }
 }

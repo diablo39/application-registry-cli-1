@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using ApplicationRegistry.Collector.Batches;
 using ApplicationRegistry.Collector.SpecificationGenerators;
 using ApplicationRegistry.Collector.DependencyCollectors;
+using ApplicationRegistry.Collector.Batches.Implementations;
 
 namespace ApplicationRegistry.Collector
 {
@@ -28,19 +29,20 @@ namespace ApplicationRegistry.Collector
                         .AddTransient<DatabaseScpecificationGenerator>();
 
                     services
-                        .AddSingleton(new BatchContext())
+                        .AddTransient<BatchRunner>()
                         .AddTransient<SanitazeApplicationArgumentsBatch>()
                         .AddTransient<SpecificationGeneratorBatch<SwaggerSpecificationGenerator>>()
                         .AddTransient<DependencyCollectorBatch<AutorestClientDependencyCollector>>()
                         .AddTransient<DependencyCollectorBatch<NugetDependencyCollector>>()
                         .AddTransient<ResultToFileSaveBatch>()
-                        .AddTransient<ResultToHostSendBatch>();
+                        .AddTransient<ResultToHostSendBatch>()
+                        .AddTransient<CollectApplicationInfoBatch>();
 
                     services
                         .AddSingleton(PhysicalConsole.Singleton)
                         .AddTransient<IEnumerable<IBatch>>(s => new List<IBatch> {
                             s.GetRequiredService<SanitazeApplicationArgumentsBatch>(),
-
+                            s.GetRequiredService<CollectApplicationInfoBatch>(),
                             //s.GetRequiredService<DependencyCollectorBatch<NugetDependencyCollector>>(),
                             //s.GetRequiredService<DependencyCollectorBatch<AutorestClientDependencyCollector>>(),
                             //s.GetRequiredService<SpecificationGeneratorBatch<SwaggerSpecificationGenerator>>(),
@@ -51,9 +53,9 @@ namespace ApplicationRegistry.Collector
                 .ConfigureLogging((context, builder) =>
                 {
                     builder
-                        .AddConsole();
+                        .AddConsole(options => { options.IncludeScopes = true; });
 
-                    builder.SetMinimumLevel(LogLevel.Trace);
+                    builder.SetMinimumLevel(LogLevel.Information);
                 })
                 .RunCommandLineApplicationAsync<Worker>(args)
                 .GetAwaiter()
