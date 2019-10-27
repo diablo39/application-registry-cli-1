@@ -31,7 +31,8 @@ namespace ApplicationRegistry.Collector.Batches
                 var batchActivity = new Activity(batchName + " Execution").Start();
                 await batch.ProcessAsync(context);
                 batchActivity.Stop();
-                _logger.LogInformation("Finished {0}. \tExecution took: {1}", batchName, batchActivity.Duration);
+
+                "Finished {0}. \tExecution took: {1}".LogDebug(this, batchName, batchActivity.Duration);
             }
 
             activity.Stop();

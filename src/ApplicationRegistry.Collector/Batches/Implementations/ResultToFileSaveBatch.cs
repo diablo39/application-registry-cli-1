@@ -2,6 +2,7 @@
 using ApplicationRegistry.Collector.Wrappers;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using System;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
@@ -23,28 +24,33 @@ namespace ApplicationRegistry.Collector.Batches
         {
             if (string.IsNullOrWhiteSpace(context.Arguments.FileOutput))
             {
-                _logger.LogDebug("Output file path not provided. Skipping execution");
+                "Output file path not provided. Skipping execution".LogDebug(this);
 
                 return BatchExecutionResult.CreateSuccessResult();
             }
 
             try
             {
-                _logger.LogDebug("Will save result to: {0}", context.Arguments.FileOutput);
+                "Will save result to: {0}".LogDebug(context.Arguments.FileOutput);
 
                 var content = JsonConvert.SerializeObject(context.BatchResult, Formatting.Indented);
 
+                content.LogTraceWithFormat(this, "Generated content: {0}");
+                
                 await _fileSystem.File_WriteAllTextAsync(context.Arguments.FileOutput, content, Encoding.UTF8);
+                throw new Exception("DUPA!");
                 
             }
             catch (System.Exception e)
             {
-                _logger.LogError(e, "Error while processing batch");
+                "Error while processing batch".LogError(this, e);
+
                 return BatchExecutionResult.CreateFailResult();
 
             }
 
             return BatchExecutionResult.CreateSuccessResult();
         }
+
     }
 }
