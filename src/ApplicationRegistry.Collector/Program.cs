@@ -7,6 +7,7 @@ using ApplicationRegistry.Collector.Batches;
 using ApplicationRegistry.Collector.SpecificationGenerators;
 using ApplicationRegistry.Collector.DependencyCollectors;
 using ApplicationRegistry.Collector.Batches.Implementations;
+using ApplicationRegistry.Collector.Wrappers;
 
 namespace ApplicationRegistry.Collector
 {
@@ -19,6 +20,8 @@ namespace ApplicationRegistry.Collector
                 {
                     services
                         .AddLogging();
+
+                    services.AddSingleton<FileSystem>();
 
                     services // Add dependency collectors
                         .AddTransient<NugetDependencyCollector>()
@@ -46,7 +49,7 @@ namespace ApplicationRegistry.Collector
                             //s.GetRequiredService<DependencyCollectorBatch<NugetDependencyCollector>>(),
                             //s.GetRequiredService<DependencyCollectorBatch<AutorestClientDependencyCollector>>(),
                             //s.GetRequiredService<SpecificationGeneratorBatch<SwaggerSpecificationGenerator>>(),
-                            //s.GetRequiredService<ResultToFileSaveBatch>(),
+                            s.GetRequiredService<ResultToFileSaveBatch>(),
                             //s.GetRequiredService<ResultToHostSendBatch>(),
                         });
                 })
@@ -55,7 +58,7 @@ namespace ApplicationRegistry.Collector
                     builder
                         .AddConsole(options => { options.IncludeScopes = true; });
 
-                    builder.SetMinimumLevel(LogLevel.Information);
+                    builder.SetMinimumLevel(LogLevel.Trace);
                 })
                 .RunCommandLineApplicationAsync<Worker>(args)
                 .GetAwaiter()
