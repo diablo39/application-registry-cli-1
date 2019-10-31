@@ -7,7 +7,7 @@ namespace System
     {
         private static Dictionary<Type, string> _categories = new Dictionary<Type, string>();
 
-        public static ILoggerFactory LoggerFactory;
+        public static ILoggerFactory LoggerFactory = new LoggerFactory();
 
         public static void SetCategoryNameForCaller(object caller, string categoryName)
         {
@@ -19,6 +19,7 @@ namespace System
             }
             else
             {
+                
                 _categories.Add(callerType, categoryName);
             }
         }
@@ -54,6 +55,13 @@ namespace System
         public static string LogError(this string message, object caller, Exception ex = null, params object[] args)
         {
             Log(caller, message, LogLevel.Error, ex, args);
+
+            return message;
+        }
+
+        public static string LogCritical(this string message, object caller, Exception ex = null, params object[] args)
+        {
+            Log(caller, message, LogLevel.Critical, ex, args);
 
             return message;
         }

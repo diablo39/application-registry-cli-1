@@ -45,7 +45,7 @@ namespace ApplicationRegistry.Collector
         public string FileOutput { get; set; }
 
         [Url]
-        [Option("--output-url <URL>", "Url to Application Registry", CommandOptionType.SingleValue)]
+        [Option("-u|--output-url <URL>", "Url to Application Registry", CommandOptionType.SingleValue)]
         public Uri Url { get; set; }
 
         public Worker(IHostingEnvironment environment, BatchRunner batchRunner, ILoggerFactory loggerFactory)

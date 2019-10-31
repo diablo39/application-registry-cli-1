@@ -5,6 +5,7 @@
         public enum ExecutionResult
         {
             Success,
+            Error,
             Fail
         }
 
@@ -13,6 +14,11 @@
         public static BatchExecutionResult CreateSuccessResult()
         {
             return new BatchExecutionResult { Result = ExecutionResult.Success };
+        }
+
+        public static BatchExecutionResult CreateErrorResult()
+        {
+            return new BatchExecutionResult { Result = ExecutionResult.Error };
         }
 
         public static BatchExecutionResult CreateFailResult()

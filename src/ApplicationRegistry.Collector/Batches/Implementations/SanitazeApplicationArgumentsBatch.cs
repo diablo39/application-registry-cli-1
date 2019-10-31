@@ -18,7 +18,7 @@ namespace ApplicationRegistry.Collector.Batches
 
                 if (files.Count == 0)
                 {
-                    Console.Error.WriteLine("Project file not found"); // TODO: try to use result as store
+                    "Project file not found. Please try to set full path to your *.csproj file".LogCritical(this);
                     return Task.FromResult(BatchExecutionResult.CreateFailResult());
                 }
 

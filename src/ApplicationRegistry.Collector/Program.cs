@@ -8,9 +8,37 @@ using ApplicationRegistry.Collector.SpecificationGenerators;
 using ApplicationRegistry.Collector.DependencyCollectors;
 using ApplicationRegistry.Collector.Batches.Implementations;
 using ApplicationRegistry.Collector.Wrappers;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace ApplicationRegistry.Collector
 {
+    public class Startup : IHostedService
+    {
+        public Task StartAsync(CancellationToken cancellationToken)
+        {
+            return Task.CompletedTask;
+        }
+
+        public Task StopAsync(CancellationToken cancellationToken)
+        {
+            return Task.CompletedTask;
+        }
+    }
+
+    public class Startup2 : IHostedService
+    {
+        public Task StartAsync(CancellationToken cancellationToken)
+        {
+            return Task.CompletedTask;
+        }
+
+        public Task StopAsync(CancellationToken cancellationToken)
+        {
+            return Task.CompletedTask;
+        }
+    }
+
     class Program
     {
         public static int Main(string[] args)
@@ -52,6 +80,9 @@ namespace ApplicationRegistry.Collector
                             s.GetRequiredService<ResultToFileSaveBatch>(),
                             //s.GetRequiredService<ResultToHostSendBatch>(),
                         });
+
+                    services.AddHostedService<Startup>();
+                    services.AddHostedService<Startup2>();
                 })
                 .ConfigureLogging((context, builder) =>
                 {
@@ -63,7 +94,8 @@ namespace ApplicationRegistry.Collector
                 .RunCommandLineApplicationAsync<Worker>(args)
                 .GetAwaiter()
                 .GetResult();
-        }
+
+            }
     }
 
 }
