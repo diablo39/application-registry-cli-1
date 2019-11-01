@@ -23,8 +23,8 @@ namespace ApplicationRegistry.Collector.Tests.Batches
 
         }
 
-        [Fact(DisplayName ="1")]
-        public async Task aaa1()
+        [Fact(DisplayName = "Getting_autorest_dependencies_should_ok_for_webapp1")]
+        public async Task Getting_autorest_dependencies_should_ok()
         {
             var context = new BatchContext(new BatchProcessArguments
             {
@@ -43,8 +43,8 @@ namespace ApplicationRegistry.Collector.Tests.Batches
             context.BatchResult.Dependencies.Should().HaveCount(3);
         }
 
-        [Fact(DisplayName = "2")]
-        public async Task aaa2()
+        [Fact(DisplayName = "Getting_autorest_dependencies_should_ok_for_webapp2")]
+        public async Task Getting_autorest_dependencies_should_ok_2()
         {
             var context = new BatchContext(new BatchProcessArguments
             {
@@ -63,8 +63,8 @@ namespace ApplicationRegistry.Collector.Tests.Batches
             context.BatchResult.Dependencies.Should().HaveCount(1);
         }
 
-        [Fact(DisplayName = "3")]
-        public async Task aaa3()
+        [Fact(DisplayName = "Getting_missing_autorest_dependencies_should_ok_for_webapp3")]
+        public async Task Getting_missing_autorest_dependencies_should_ok_for_webapp3()
         {
             var context = new BatchContext(new BatchProcessArguments
             {
