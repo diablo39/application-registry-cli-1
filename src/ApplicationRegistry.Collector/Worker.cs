@@ -109,17 +109,12 @@ namespace ApplicationRegistry.Collector
             (List<ApplicationVersionDependency> dependencies, bool collectDependenciesFailed) = CollectDependencies(serviceProvider);
 
 
-            (List<ApplicationVersionSpecification> specifications, bool specificationGenerationFailed) = GenerateSpecifications(serviceProvider, logger);
-
-
             var result = new ApplicationInfo
             {
                 ApplicationCode = Applicatnion,
                 IdEnvironment = Environment,
                 Version = Version,
                 Dependencies = dependencies,
-                Specifications = specifications,
-                SpecificationGenerationFailed = specificationGenerationFailed,
                 DependencyFillectionFailed = collectDependenciesFailed,
                 ToolsVersion = typeof(Program).Assembly.GetName().Version.ToString()
             };
@@ -166,39 +161,5 @@ namespace ApplicationRegistry.Collector
 
             return (dependencies, collectDependenciesFailed);
         }
-
-        private static (List<ApplicationVersionSpecification> specifications, bool specificationGenerationFailed) GenerateSpecifications(ServiceProvider serviceProvider, ILogger<Program> logger)
-        {
-            logger.LogTrace("Starting specification generation");
-
-            var specifications = new List<ApplicationVersionSpecification>();
-            var specificationGenerationFailed = false;
-            using (var loggerScope = logger.BeginScope("SpecificationGeneration"))
-            {
-                var specificationGenerators = serviceProvider.GetRequiredService<ISpecificationGenerator[]>();
-                for (int i = 0; i < specificationGenerators.Length; i++)
-                {
-                    try
-                    {
-                        var specificationGenerator = specificationGenerators[i];
-                        logger.LogDebug("Starting {0}", specificationGenerator.GetType());
-                        var specificationsGenerated = specificationGenerator.GetSpecifications();
-                        logger.LogDebug("Ending {0}", specificationGenerator.GetType());
-                        specifications.AddRange(specificationsGenerated);
-                    }
-                    catch
-                    {
-                        specificationGenerationFailed = true;
-                    }
-                }
-            }
-
-            logger.LogTrace("Ending: specifications generation");
-
-            return (specifications, specificationGenerationFailed);
-        }
-
-
-
     }
 }

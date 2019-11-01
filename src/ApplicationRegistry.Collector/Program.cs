@@ -4,7 +4,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Hosting;
 using System.Collections.Generic;
 using ApplicationRegistry.Collector.Batches;
-using ApplicationRegistry.Collector.SpecificationGenerators;
 using ApplicationRegistry.Collector.DependencyCollectors;
 using ApplicationRegistry.Collector.Batches.Implementations;
 using ApplicationRegistry.Collector.Wrappers;
@@ -55,14 +54,9 @@ namespace ApplicationRegistry.Collector
                         .AddTransient<NugetDependencyCollector>()
                         .AddTransient<AutorestClientDependencyCollector>();
 
-                    services // Add specification generators
-                        .AddTransient<SwaggerSpecificationGenerator>()
-                        .AddTransient<DatabaseScpecificationGenerator>();
-
                     services
                         .AddTransient<BatchRunner>()
                         .AddTransient<SanitazeApplicationArgumentsBatch>()
-                        .AddTransient<SpecificationGeneratorBatch<SwaggerSpecificationGenerator>>()
                         .AddTransient<DependencyCollectorBatch<AutorestClientDependencyCollector>>()
                         .AddTransient<DependencyCollectorBatch<NugetDependencyCollector>>()
                         .AddTransient<ResultToFileSaveBatch>()
