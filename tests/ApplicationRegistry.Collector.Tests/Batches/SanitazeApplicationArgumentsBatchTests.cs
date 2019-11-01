@@ -12,7 +12,7 @@ using ApplicationRegistry.Collector.Tests.TestingInfrastructure;
 namespace ApplicationRegistry.Collector.Tests.Batches
 {
     
-    public class SanitazeApplicationArgumentsBatchTests: ICollectionFixture<TestsContext>
+    public class SanitazeApplicationArgumentsBatchTests: IClassFixture<TestsContext>
     {
         public SanitazeApplicationArgumentsBatchTests(TestsContext context)
         {

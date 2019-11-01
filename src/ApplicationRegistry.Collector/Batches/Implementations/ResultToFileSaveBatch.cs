@@ -31,14 +31,13 @@ namespace ApplicationRegistry.Collector.Batches
 
             try
             {
-                "Will save result to: {0}".LogDebug(context.Arguments.FileOutput);
+                "Will save result to: {0}".LogDebug(this, context.Arguments.FileOutput);
 
                 var content = JsonConvert.SerializeObject(context.BatchResult, Formatting.Indented);
 
                 content.LogTraceWithFormat(this, "Generated content: {0}");
                 
                 await _fileSystem.File_WriteAllTextAsync(context.Arguments.FileOutput, content, Encoding.UTF8);
-                throw new Exception("DUPA!");
                 
             }
             catch (System.Exception e)

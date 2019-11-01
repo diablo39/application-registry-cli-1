@@ -24,6 +24,13 @@ namespace System
             }
         }
 
+        public static string LogInfo(this string message, object caller, params object[] args)
+        {
+            Log(caller, message, LogLevel.Information, null, args);
+
+            return message;
+        }
+
         public static string LogDebug(this string message, object caller, params object[] args)
         {
             Log(caller, message, LogLevel.Debug, null, args);

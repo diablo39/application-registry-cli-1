@@ -27,22 +27,22 @@ namespace ApplicationRegistry.Collector.Batches
             foreach (var batch in _batches)
             {
                 var batchName = batch.GetType().Name;
-                _logger.LogInformation("Starting {0}", batchName);
+                "Starting {0}".LogInfo(this, batchName);
                 var batchActivity = new Activity(batchName + " Execution").Start();
                 await batch.ProcessAsync(context);
                 batchActivity.Stop();
 
-                "Finished {0}. \tExecution took: {1}".LogDebug(this, batchName, batchActivity.Duration);
+                "Finished {0}.{1}Execution took: {2}".LogInfo(this, batchName, Environment.NewLine, batchActivity.Duration);
             }
 
             activity.Stop();
 
-            _logger.LogInformation("Processing all batches finished after: {0}", activity.Duration);
+            "Processing of all batches finished after: {0}".LogInfo(this, activity.Duration);
         }
 
         private void PrintBatches()
         {
-            var batches = string.Join(", ", _batches.Select(e => e.GetType().Name));
+            var batches = string.Join("", _batches.Select(e => string.Concat(Environment.NewLine, "--> ", e.GetType().Name)));
 
             _logger.LogInformation("Batches loaded: {0}", batches);
         }

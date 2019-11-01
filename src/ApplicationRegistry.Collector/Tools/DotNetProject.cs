@@ -9,18 +9,36 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Xml.Linq;
+using ILogger = Microsoft.Extensions.Logging.ILogger;
 
 namespace ApplicationRegistry.Collector
 {
+    public class DotNetProjectFactory
+    {
+        private readonly ILoggerFactory _loggerFactory;
+
+        public DotNetProjectFactory(ILoggerFactory loggerFactory)
+        {
+            _loggerFactory = loggerFactory;
+        }
+
+        public DotNetProject CreateProject(string path)
+        {
+            var logger = _loggerFactory.CreateLogger("DotNetProject");
+            var instance = new DotNetProject(logger, path);
+            return instance;
+        }
+    }
+
     public class DotNetProject : IDisposable
     {
-        private readonly ILogger<DotNetProject> _logger;
+        private readonly ILogger _logger;
         private readonly string _projectFile;
         private readonly string _projectDirectory;
         private readonly List<(string file, string bakFile)> _filesToRollBack = new List<(string file, string bakFile)>();
         private readonly List<string> _filesToRemove = new List<string>();
 
-        public DotNetProject(ILogger<DotNetProject> logger, string projectFile)
+        public DotNetProject(ILogger logger, string projectFile)
         {
             if (string.IsNullOrWhiteSpace(projectFile))
             {
@@ -91,7 +109,9 @@ namespace ApplicationRegistry.Collector
                 while (!process.HasExited)
                 {
                     var lines = process.StandardOutput.ReadToEnd();
-                    _logger.LogDebug(lines);
+
+                    lines.LogDebug(this);
+                    
                     result.Append(lines);
                 }
 
@@ -169,7 +189,7 @@ namespace ApplicationRegistry.Collector
                 while(!process.HasExited)
                 {
                     var output = process.StandardOutput.ReadToEnd();
-                    _logger.LogDebug(output);
+                    output.LogDebug(this);
                 }
 
                 if (process.ExitCode != 0)

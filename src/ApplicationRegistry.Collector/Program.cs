@@ -67,13 +67,15 @@ namespace ApplicationRegistry.Collector
                         .AddTransient<DependencyCollectorBatch<NugetDependencyCollector>>()
                         .AddTransient<ResultToFileSaveBatch>()
                         .AddTransient<ResultToHostSendBatch>()
-                        .AddTransient<CollectApplicationInfoBatch>();
+                        .AddTransient<CollectApplicationInfoBatch>()
+                        .AddTransient<GenerateSwaggerSpecificationBatch>();
 
                     services
                         .AddSingleton(PhysicalConsole.Singleton)
                         .AddTransient<IEnumerable<IBatch>>(s => new List<IBatch> {
                             s.GetRequiredService<SanitazeApplicationArgumentsBatch>(),
                             s.GetRequiredService<CollectApplicationInfoBatch>(),
+                            s.GetRequiredService<GenerateSwaggerSpecificationBatch>(),
                             //s.GetRequiredService<DependencyCollectorBatch<NugetDependencyCollector>>(),
                             //s.GetRequiredService<DependencyCollectorBatch<AutorestClientDependencyCollector>>(),
                             //s.GetRequiredService<SpecificationGeneratorBatch<SwaggerSpecificationGenerator>>(),
