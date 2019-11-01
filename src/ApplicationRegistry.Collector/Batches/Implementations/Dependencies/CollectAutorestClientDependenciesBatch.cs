@@ -1,44 +1,51 @@
-﻿using ApplicationRegistry.Collector.Model;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using ApplicationRegistry.Collector.Model;
 using Buildalyzer;
 using Buildalyzer.Workspaces;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.FindSymbols;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 
-namespace ApplicationRegistry.Collector.DependencyCollectors
+
+namespace ApplicationRegistry.Collector.Batches.Implementations.Dependencies
 {
-    class AutorestClientDependencyCollector : IDependencyCollector
+    class CollectAutorestClientDependenciesBatch : IBatch
     {
         private const string _restClientBaseClassName = "Microsoft.Rest.ServiceClient`1";
 
-        readonly string _projectFilePath;
 
-        readonly string _solutionFilePath;
-
-        private readonly ILogger<AutorestClientDependencyCollector> _logger;
-
-        public AutorestClientDependencyCollector(BatchContext context, ILogger<AutorestClientDependencyCollector> logger)
+        public Task<BatchExecutionResult> ProcessAsync(BatchContext context)
         {
-            _projectFilePath = context.Arguments.ProjectFilePath;
-            _solutionFilePath = context.Arguments.SolutionFilePath;
+            try
+            {
+                var dependencies = GetDependencies(context.Arguments.ProjectFilePath, context.Arguments.SolutionFilePath);
 
-            _logger = logger;
+                context.BatchResult.Dependencies.AddRange(dependencies);
+
+                return Task.FromResult(BatchExecutionResult.CreateSuccessResult());
+            }
+            catch (Exception)
+            {
+                return Task.FromResult(BatchExecutionResult.CreateErrorResult());
+            }
         }
 
-        public List<ApplicationVersionDependency> GetDependencies()
+        
+
+        private List<ApplicationVersionDependency> GetDependencies(string projectFilePath, string solutionFilePath)
         {
             var result = new List<ApplicationVersionDependency>();
 
             try
             {
-                var projectFile = _projectFilePath;
+                var projectFile = projectFilePath;
 
-                AnalyzerManager manager = new AnalyzerManager(_solutionFilePath);
+                AnalyzerManager manager = new AnalyzerManager(solutionFilePath);
 
                 var projects = manager.Projects;
 
@@ -92,18 +99,13 @@ namespace ApplicationRegistry.Collector.DependencyCollectors
                             }
                     });
                 }
-
-
-
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error while processing autorest dependencies");
-
+                "Error while processing autorest dependencies".LogError(this, ex);
             }
 
             return result;
-
         }
 
         private static string GetPath(IMethodSymbol member)
@@ -136,5 +138,6 @@ namespace ApplicationRegistry.Collector.DependencyCollectors
                 return "PROCESSING_ERROR";
             }
         }
+
     }
 }

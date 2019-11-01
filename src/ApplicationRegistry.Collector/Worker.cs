@@ -1,5 +1,4 @@
 ﻿using ApplicationRegistry.Collector.Batches;
-using ApplicationRegistry.Collector.DependencyCollectors;
 using ApplicationRegistry.Collector.Model;
 using McMaster.Extensions.CommandLineUtils;
 using Microsoft.Extensions.DependencyInjection;
@@ -106,16 +105,11 @@ namespace ApplicationRegistry.Collector
 
             logger.LogInformation($"Starting application with parameters: {_newLine}\turl: {Url}{_newLine}\tApplication: {Applicatnion}{_newLine}\tPath: {this.ProjectFilePath}");
 
-            (List<ApplicationVersionDependency> dependencies, bool collectDependenciesFailed) = CollectDependencies(serviceProvider);
-
-
             var result = new ApplicationInfo
             {
                 ApplicationCode = Applicatnion,
                 IdEnvironment = Environment,
                 Version = Version,
-                Dependencies = dependencies,
-                DependencyFillectionFailed = collectDependenciesFailed,
                 ToolsVersion = typeof(Program).Assembly.GetName().Version.ToString()
             };
 
@@ -140,26 +134,6 @@ namespace ApplicationRegistry.Collector
             }
 
             Console.WriteLine();
-        }
-
-        private static (List<ApplicationVersionDependency> dependencies, bool collectDependenciesFailed) CollectDependencies(ServiceProvider serviceProvider)
-        {
-            var dependencies = new List<ApplicationVersionDependency>();
-            var collectDependenciesFailed = false;
-            try
-            {
-                var nugetDependencies = serviceProvider.GetService<NugetDependencyCollector>().GetDependencies();
-                dependencies.AddRange(nugetDependencies);
-
-                var autorestclientdependencies = serviceProvider.GetService<AutorestClientDependencyCollector>().GetDependencies();
-                dependencies.AddRange(autorestclientdependencies);
-            }
-            catch
-            {
-                collectDependenciesFailed = true;
-            }
-
-            return (dependencies, collectDependenciesFailed);
         }
     }
 }

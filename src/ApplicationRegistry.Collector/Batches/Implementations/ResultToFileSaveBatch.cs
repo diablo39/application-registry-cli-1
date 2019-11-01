@@ -31,21 +31,21 @@ namespace ApplicationRegistry.Collector.Batches
 
             try
             {
-                "Will save result to: {0}".LogDebug(this, context.Arguments.FileOutput);
-
                 var content = JsonConvert.SerializeObject(context.BatchResult, Formatting.Indented);
 
-                content.LogTraceWithFormat(this, "Generated content: {0}");
-                
                 await _fileSystem.File_WriteAllTextAsync(context.Arguments.FileOutput, content, Encoding.UTF8);
-                
+
+                "Content saved to: {0}{1}Generated content:{2}{3}".LogTrace(this, 
+                    context.Arguments.FileOutput, 
+                    Environment.NewLine, 
+                    Environment.NewLine, 
+                    content);
             }
             catch (System.Exception e)
             {
                 "Error while processing batch".LogError(this, e);
 
                 return BatchExecutionResult.CreateFailResult();
-
             }
 
             return BatchExecutionResult.CreateSuccessResult();

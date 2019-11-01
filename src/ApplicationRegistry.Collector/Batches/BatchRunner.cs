@@ -29,10 +29,10 @@ namespace ApplicationRegistry.Collector.Batches
                 var batchName = batch.GetType().Name;
                 "Starting {0}".LogInfo(this, batchName);
                 var batchActivity = new Activity(batchName + " Execution").Start();
-                await batch.ProcessAsync(context);
+                var batchResult = await batch.ProcessAsync(context);
                 batchActivity.Stop();
 
-                "Finished {0}.{1}Execution took: {2}".LogInfo(this, batchName, Environment.NewLine, batchActivity.Duration);
+                "Finished {0} with result: {1}{2}Execution took: {3}".LogInfo(this, batchName, batchResult.Result, Environment.NewLine, batchActivity.Duration);
             }
 
             activity.Stop();

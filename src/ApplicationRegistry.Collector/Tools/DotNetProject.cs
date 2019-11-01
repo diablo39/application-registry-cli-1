@@ -1,5 +1,4 @@
 ﻿using McMaster.Extensions.CommandLineUtils;
-using Microsoft.Build.Framework;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -85,7 +84,7 @@ namespace ApplicationRegistry.Collector
         {
             var parameters = new StringBuilder("run --no-launch-profile --framework netcoreapp2.1 -- "); // TODO: no hardcoded framework
 
-            if(args != null)
+            if (args != null)
             {
                 parameters.Append(string.Join(" ", args));
             }
@@ -97,7 +96,7 @@ namespace ApplicationRegistry.Collector
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
                 RedirectStandardInput = true,
-                
+
             };
             var result = new StringBuilder();
             var exitedCode = 0;
@@ -111,7 +110,7 @@ namespace ApplicationRegistry.Collector
                     var lines = process.StandardOutput.ReadToEnd();
 
                     lines.LogDebug(this);
-                    
+
                     result.Append(lines);
                 }
 
@@ -124,7 +123,7 @@ namespace ApplicationRegistry.Collector
                 }
             }
 
-            if(exitedCode != 0)
+            if (exitedCode != 0)
             {
                 Thread.Sleep(5000); // TODO: this is wrong!!!
 
@@ -165,10 +164,10 @@ namespace ApplicationRegistry.Collector
 
         public void Build(string startupObject = null)
         {
-            var commandBuilder = new StringBuilder("build ");
+            var commandBuilder = new StringBuilder("build -v q ");
             commandBuilder.Append("\"" + _projectFile + "\"");
-
-            if(!string.IsNullOrWhiteSpace(startupObject))
+            
+            if (!string.IsNullOrWhiteSpace(startupObject))
                 SetStartupObject(startupObject);
 
             var start = new ProcessStartInfo(DotNetExe.FullPathOrDefault(), commandBuilder.ToString())
@@ -182,11 +181,10 @@ namespace ApplicationRegistry.Collector
 
             using (var process = new Process())
             {
-
                 process.StartInfo = start;
                 process.Start();
-                
-                while(!process.HasExited)
+
+                while (!process.HasExited)
                 {
                     var output = process.StandardOutput.ReadToEnd();
                     output.LogDebug(this);
@@ -243,7 +241,7 @@ namespace ApplicationRegistry.Collector
             var directory = Path.GetDirectoryName(_projectFile);
 
             var views = Directory.EnumerateFiles(directory, "*.cshtml", SearchOption.AllDirectories);
-            
+
             var viewsRelativePath = views.Select(e => e.Substring(directory.Length + 1)).Select(e => new XElement("Content", new XAttribute("Remove", e))).ToList();
 
             var document = XDocument.Load(_projectFile);
@@ -321,7 +319,7 @@ namespace ApplicationRegistry.Collector
 
                 _disposedValue = true;
 
-                if(exceptions.Any())
+                if (exceptions.Any())
                 {
                     throw new AggregateException("Couple files couldn't be retrived from backup. See inner exceptions for details.", exceptions);
                 }

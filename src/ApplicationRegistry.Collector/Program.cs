@@ -4,39 +4,12 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Hosting;
 using System.Collections.Generic;
 using ApplicationRegistry.Collector.Batches;
-using ApplicationRegistry.Collector.DependencyCollectors;
 using ApplicationRegistry.Collector.Batches.Implementations;
 using ApplicationRegistry.Collector.Wrappers;
-using System.Threading;
-using System.Threading.Tasks;
+using ApplicationRegistry.Collector.Batches.Implementations.Dependencies;
 
 namespace ApplicationRegistry.Collector
 {
-    public class Startup : IHostedService
-    {
-        public Task StartAsync(CancellationToken cancellationToken)
-        {
-            return Task.CompletedTask;
-        }
-
-        public Task StopAsync(CancellationToken cancellationToken)
-        {
-            return Task.CompletedTask;
-        }
-    }
-
-    public class Startup2 : IHostedService
-    {
-        public Task StartAsync(CancellationToken cancellationToken)
-        {
-            return Task.CompletedTask;
-        }
-
-        public Task StopAsync(CancellationToken cancellationToken)
-        {
-            return Task.CompletedTask;
-        }
-    }
 
     class Program
     {
@@ -50,35 +23,27 @@ namespace ApplicationRegistry.Collector
 
                     services.AddSingleton<FileSystem>();
 
-                    services // Add dependency collectors
-                        .AddTransient<NugetDependencyCollector>()
-                        .AddTransient<AutorestClientDependencyCollector>();
-
                     services
                         .AddTransient<BatchRunner>()
                         .AddTransient<SanitazeApplicationArgumentsBatch>()
-                        .AddTransient<DependencyCollectorBatch<AutorestClientDependencyCollector>>()
-                        .AddTransient<DependencyCollectorBatch<NugetDependencyCollector>>()
                         .AddTransient<ResultToFileSaveBatch>()
-                        .AddTransient<ResultToHostSendBatch>()
+                        .AddTransient<ResultToHttpEndpointBatch>()
                         .AddTransient<CollectApplicationInfoBatch>()
-                        .AddTransient<GenerateSwaggerSpecificationBatch>();
+                        .AddTransient<GenerateSwaggerSpecificationBatch>()
+                        .AddTransient<CollectNugetDependenciesBatch>();
 
                     services
                         .AddSingleton(PhysicalConsole.Singleton)
                         .AddTransient<IEnumerable<IBatch>>(s => new List<IBatch> {
                             s.GetRequiredService<SanitazeApplicationArgumentsBatch>(),
                             s.GetRequiredService<CollectApplicationInfoBatch>(),
-                            s.GetRequiredService<GenerateSwaggerSpecificationBatch>(),
-                            //s.GetRequiredService<DependencyCollectorBatch<NugetDependencyCollector>>(),
+                            //s.GetRequiredService<GenerateSwaggerSpecificationBatch>(),
+                            s.GetRequiredService<CollectNugetDependenciesBatch>(),
                             //s.GetRequiredService<DependencyCollectorBatch<AutorestClientDependencyCollector>>(),
                             //s.GetRequiredService<SpecificationGeneratorBatch<SwaggerSpecificationGenerator>>(),
                             s.GetRequiredService<ResultToFileSaveBatch>(),
                             //s.GetRequiredService<ResultToHostSendBatch>(),
                         });
-
-                    services.AddHostedService<Startup>();
-                    services.AddHostedService<Startup2>();
                 })
                 .ConfigureLogging((context, builder) =>
                 {
@@ -91,7 +56,7 @@ namespace ApplicationRegistry.Collector
                 .GetAwaiter()
                 .GetResult();
 
-            }
+        }
     }
 
 }
