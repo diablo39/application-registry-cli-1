@@ -20,7 +20,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "samples", "samples", "{1187
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ApplicationRegistry.Sample.WebApplication2", "samples\ApplicationRegistry.Sample.WebApplication2\ApplicationRegistry.Sample.WebApplication2.csproj", "{DBEA04E8-C857-4805-95C9-973DFFCCD167}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ApplicationRegistry.Sample.WebApplication", "samples\ApplicationRegistry.SampleWebApplication\ApplicationRegistry.Sample.WebApplication.csproj", "{21934403-EEF9-46EE-878C-B35CDD6CA846}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ApplicationRegistry.Sample.WebApplication1", "samples\ApplicationRegistry.SampleWebApplication\ApplicationRegistry.Sample.WebApplication1.csproj", "{21934403-EEF9-46EE-878C-B35CDD6CA846}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ApplicationRegistry.Sample.WebApplication3", "samples\ApplicationRegistry.SampleWebApplication3\ApplicationRegistry.Sample.WebApplication3.csproj", "{1033F308-6D2B-4AB0-841F-9B2857E2F956}"
 EndProject

@@ -79,7 +79,6 @@ namespace ApplicationRegistry.Collector.Tests.Batches
                     new object[] { projectFileRelativePath, null, expectedProjectFile, expectedSolutionFilePath },
                     new object[] { projectDirectoryRelativePath, null, expectedProjectFile, expectedSolutionFilePath },
                     new object[] { projectFileRelativePath, solutionFilePathRelative, expectedProjectFile, expectedSolutionFilePath },
-                    //new object[] { projectFileRelativePath, null, expectedProjectFile, expectedSolutionFilePath },
                 };
             }
         }
