@@ -11,7 +11,6 @@ using ApplicationRegistry.Collector.Tests.TestingInfrastructure;
 
 namespace ApplicationRegistry.Collector.Tests.Batches
 {
-    
     public class SanitazeApplicationArgumentsBatchTests: IClassFixture<TestsContext>
     {
         public SanitazeApplicationArgumentsBatchTests(TestsContext context)
@@ -63,8 +62,7 @@ namespace ApplicationRegistry.Collector.Tests.Batches
             //currentSolutionFile.Should().Be(expectedSolutionFile);
         }
         
-
-    public static IEnumerable<object[]> DataForHappyPath
+        public static IEnumerable<object[]> DataForHappyPath
         {
             get
             {

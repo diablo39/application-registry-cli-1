@@ -7,6 +7,7 @@ namespace System
     {
         private static Dictionary<Type, string> _categories = new Dictionary<Type, string>();
 
+        [ThreadStatic]
         public static ILoggerFactory LoggerFactory = new LoggerFactory();
 
         public static void SetCategoryNameForCaller(object caller, string categoryName)
@@ -55,6 +56,13 @@ namespace System
         public static string LogTraceWithFormat(this string message, object caller, string format)
         {
             Log(caller, format, LogLevel.Trace, null, message);
+
+            return message;
+        }
+
+        public static string LogErrorWithFormat(this string message, object caller, string format)
+        {
+            Log(caller, format, LogLevel.Error, null, message);
 
             return message;
         }

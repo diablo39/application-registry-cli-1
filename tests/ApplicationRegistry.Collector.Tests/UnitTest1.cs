@@ -35,17 +35,17 @@ namespace ApplicationRegistry.Collector.Tests
             Console.WriteLine("test");
         }
 
-        [Fact]
-        public void CshtmlPaths()
-        {
-            var csproj = @"C:\SDS\BM.Domain.Timeline\BM.Domain.Timeline\src\BM.Domain.Timeline.WebApi\BM.Domain.Timeline.WebApi.csproj";
+        //[Fact]
+        //public void CshtmlPaths()
+        //{
+        //    var csproj = @"C:\SDS\BM.Domain.Timeline\BM.Domain.Timeline\src\BM.Domain.Timeline.WebApi\BM.Domain.Timeline.WebApi.csproj";
 
-            var directory = Path.GetDirectoryName(csproj);
+        //    var directory = Path.GetDirectoryName(csproj);
 
-            var views = Directory.EnumerateFiles(directory, "*.cshtml", SearchOption.AllDirectories);
-            var notCompilePattern = "<None Include=\"{0}\" />";
-            var viewsRelativePath = views.Select(e => e.Substring(directory.Length + 1)).Select(e=> string.Format(notCompilePattern, e)).ToList();
-        }
+        //    var views = Directory.EnumerateFiles(directory, "*.cshtml", SearchOption.AllDirectories);
+        //    var notCompilePattern = "<None Include=\"{0}\" />";
+        //    var viewsRelativePath = views.Select(e => e.Substring(directory.Length + 1)).Select(e=> string.Format(notCompilePattern, e)).ToList();
+        //}
 
         [Fact]
         public void CsprojStartupObject()

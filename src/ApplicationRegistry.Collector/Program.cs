@@ -30,7 +30,8 @@ namespace ApplicationRegistry.Collector
                         .AddTransient<ResultToHttpEndpointBatch>()
                         .AddTransient<CollectApplicationInfoBatch>()
                         .AddTransient<GenerateSwaggerSpecificationBatch>()
-                        .AddTransient<CollectNugetDependenciesBatch>();
+                        .AddTransient<CollectNugetDependenciesBatch>()
+                        .AddTransient<CollectAutorestClientDependenciesBatch>();
 
                     services
                         .AddSingleton(PhysicalConsole.Singleton)
@@ -38,7 +39,8 @@ namespace ApplicationRegistry.Collector
                             s.GetRequiredService<SanitazeApplicationArgumentsBatch>(),
                             s.GetRequiredService<CollectApplicationInfoBatch>(),
                             //s.GetRequiredService<GenerateSwaggerSpecificationBatch>(),
-                            s.GetRequiredService<CollectNugetDependenciesBatch>(),
+                            //s.GetRequiredService<CollectNugetDependenciesBatch>(),
+                            s.GetRequiredService<CollectAutorestClientDependenciesBatch>(),
                             //s.GetRequiredService<DependencyCollectorBatch<AutorestClientDependencyCollector>>(),
                             //s.GetRequiredService<SpecificationGeneratorBatch<SwaggerSpecificationGenerator>>(),
                             s.GetRequiredService<ResultToFileSaveBatch>(),

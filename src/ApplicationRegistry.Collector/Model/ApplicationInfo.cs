@@ -26,10 +26,9 @@ namespace ApplicationRegistry.Collector.Model
         public string ToolsVersion { get; set; }
 
         // Navigation properties
+        public List<ApplicationVersionSpecification> Specifications { get; } = new List<ApplicationVersionSpecification>();
 
-        public List<ApplicationVersionSpecification> Specifications { get; set; }
-
-        public List<ApplicationVersionDependency> Dependencies { get; set; }
+        public List<ApplicationVersionDependency> Dependencies { get; } = new List<ApplicationVersionDependency>();
         
     }
 }
