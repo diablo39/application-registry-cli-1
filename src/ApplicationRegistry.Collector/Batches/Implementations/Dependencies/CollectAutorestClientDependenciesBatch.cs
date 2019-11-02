@@ -29,8 +29,10 @@ namespace ApplicationRegistry.Collector.Batches.Implementations.Dependencies
 
                 return BatchExecutionResult.CreateSuccessResult();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                "Error while processing autorest dependencies".LogError(this, ex);
+
                 return BatchExecutionResult.CreateErrorResult();
             }
         }
@@ -39,64 +41,57 @@ namespace ApplicationRegistry.Collector.Batches.Implementations.Dependencies
         {
             var result = new List<ApplicationVersionDependency>();
 
-            try
+            AnalyzerManager manager = new AnalyzerManager(solutionFilePath);
+
+            AdhocWorkspace workspace = manager.GetWorkspace();
+
+            var project = workspace.CurrentSolution.Projects.FirstOrDefault(p => p.FilePath == projectFilePath);
+
+            var compilation = await project.GetCompilationAsync();
+
+            var restClientBaseClass = compilation.GetTypeByMetadataName(_restClientBaseClassName);
+
+            if (restClientBaseClass == null) 
             {
-                AnalyzerManager manager = new AnalyzerManager(solutionFilePath);
+                "No autorest type found in solution".LogError(this);
+                return result;
+            }
 
-                var projects = manager.Projects;
+            var projectsToScan = GetProjectsToBeScanned(workspace, project);
 
-                AdhocWorkspace workspace = manager.GetWorkspace();
+            var restClients = await SymbolFinder.FindDerivedClassesAsync(restClientBaseClass, workspace.CurrentSolution, projectsToScan);
 
-                var project = workspace.CurrentSolution.Projects.FirstOrDefault(p => p.FilePath == projectFilePath);
+            foreach (var restClient in restClients)
+            {
+                var members = restClient.GetMembers().OfType<IMethodSymbol>().Where(t => t.Name.EndsWith("WithHttpMessagesAsync")).ToList();
+                var operations = new List<ApplicationVersionDependency.Operation>();
 
-                var compilation = await project.GetCompilationAsync();
-
-                var restClientBaseClass = compilation.GetTypeByMetadataName(_restClientBaseClassName);
-
-                if (restClientBaseClass == null) // No autorest client found in solution
+                foreach (var member in members)
                 {
-                    return result;
+                    var methodName = member.Name.Substring(0, member.Name.Length - "WithHttpMessagesAsync".Length);
+
+                    string path = GetPath(member);
+                    string httpMethod = GetHttpMethod(member);
+
+                    operations.Add(
+                        new ApplicationVersionDependency.Operation
+                        {
+                            IsInUse = false,
+                            OperationId = methodName,
+                            Path = "/" + path
+                        });
                 }
 
-                var projectsToScan = GetProjectsToBeScanned(workspace, project);
-
-                var restClients = await SymbolFinder.FindDerivedClassesAsync(restClientBaseClass, workspace.CurrentSolution, projectsToScan);
-
-                foreach (var restClient in restClients)
+                result.Add(new ApplicationVersionDependency
                 {
-                    var members = restClient.GetMembers().OfType<IMethodSymbol>().Where(t => t.Name.EndsWith("WithHttpMessagesAsync")).ToList();
-                    var operations = new List<ApplicationVersionDependency.Operation>();
-
-                    foreach (var member in members)
-                    {
-                        var methodName = member.Name.Substring(0, member.Name.Length - "WithHttpMessagesAsync".Length);
-
-                        string path = GetPath(member);
-
-                        operations.Add(
-                            new ApplicationVersionDependency.Operation
-                            {
-                                IsInUse = false,
-                                OperationId = methodName,
-                                Path = "/" + path
-                            });
-                    }
-
-                    result.Add(new ApplicationVersionDependency
-                    {
-                        DependencyType = "AUTORESTCLIENT",
-                        Name = restClient.ToString(),
-                        Version = "-",
-                        VersionExtraProperties = new Dictionary<string, object>
+                    DependencyType = "AUTORESTCLIENT",
+                    Name = restClient.ToString(),
+                    Version = "-",
+                    VersionExtraProperties = new Dictionary<string, object>
                         {
                             { "Operations",operations }
                         }
-                    });
-                }
-            }
-            catch (Exception ex)
-            {
-                "Error while processing autorest dependencies".LogError(this, ex);
+                });
             }
 
             return result;
@@ -148,11 +143,51 @@ namespace ApplicationRegistry.Collector.Batches.Implementations.Dependencies
 
                 var path = literals?.GetText()?.ToString()?.Trim('"') ?? "";
 
-                if(string.IsNullOrWhiteSpace(path))
+                if (string.IsNullOrWhiteSpace(path))
                 {
                     "Path not found for member {0}".LogInfo(this, member.Name);
                 }
                 return path;
+            }
+            catch (Exception ex)
+            {
+                "Error while looking for url in member {0}".LogError(this, ex, member.Name);
+                return "";
+            }
+        }
+
+        private string GetHttpMethod(IMethodSymbol member)
+        {
+            try
+            {
+                if (member.Locations.Length > 1 || member.Locations.Length == 0)
+                {
+                    "More then one location found for method. Skipping {0}".LogWarning(this, member.Name);
+                    return "";
+                }
+
+                var methodAssignment = member.Locations[0]
+                                        .SourceTree.GetRoot()
+                                        .FindNode(member.Locations[0].SourceSpan)
+                                        .DescendantNodes()
+                                        .OfType<AssignmentExpressionSyntax>()
+                                        .SingleOrDefault(n => n.GetText().ToString().Contains("_httpRequest.Method = "));
+
+                if (methodAssignment == null)
+                {
+                    "Can't find http method for member {0}".LogWarning(this, member.Name);
+                    return "";
+                }
+
+                var httpMethod = methodAssignment
+                    .DescendantNodes()
+                    .OfType<LiteralExpressionSyntax>()
+                    .SingleOrDefault()
+                    .Token
+                    .Value
+                    .ToString();
+
+                return httpMethod;
             }
             catch (Exception ex)
             {

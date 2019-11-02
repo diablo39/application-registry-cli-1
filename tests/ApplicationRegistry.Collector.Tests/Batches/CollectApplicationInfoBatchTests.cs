@@ -9,9 +9,9 @@ using FluentAssertions;
 
 namespace ApplicationRegistry.Collector.Tests.Batches
 {
-    public class CollectApplicationInfoBatchTests : IClassFixture<TestsContext>
+    public class CollectApplicationInfoBatchTests : IClassFixture<LoggingContext>
     {
-        public CollectApplicationInfoBatchTests(TestsContext ctx)
+        public CollectApplicationInfoBatchTests(LoggingContext ctx)
         {
 
         }

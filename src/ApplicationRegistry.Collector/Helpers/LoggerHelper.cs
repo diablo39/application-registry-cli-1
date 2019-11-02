@@ -25,6 +25,13 @@ namespace System
             }
         }
 
+        public static string LogWarning(this string message, object caller, params object[] args)
+        {
+            Log(caller, message, LogLevel.Warning, null, args);
+
+            return message;
+        }
+
         public static string LogInfo(this string message, object caller, params object[] args)
         {
             Log(caller, message, LogLevel.Information, null, args);

@@ -291,12 +291,12 @@ namespace ApplicationRegistry.Collector
             {
                 if (disposing)
                 {
-                    foreach (var backup in _filesToRollBack)
+                    foreach (var (file, bakFile) in _filesToRollBack)
                     {
                         try
                         {
-                            File.Copy(backup.bakFile, backup.file, true);
-                            File.Delete(backup.bakFile);
+                            File.Copy(bakFile, file, true);
+                            File.Delete(bakFile);
                         }
                         catch (Exception ex)
                         {

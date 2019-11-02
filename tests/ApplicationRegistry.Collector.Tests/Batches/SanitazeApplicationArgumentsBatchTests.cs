@@ -11,9 +11,9 @@ using ApplicationRegistry.Collector.Tests.TestingInfrastructure;
 
 namespace ApplicationRegistry.Collector.Tests.Batches
 {
-    public class SanitazeApplicationArgumentsBatchTests: IClassFixture<TestsContext>
+    public class SanitazeApplicationArgumentsBatchTests: IClassFixture<LoggingContext>
     {
-        public SanitazeApplicationArgumentsBatchTests(TestsContext context)
+        public SanitazeApplicationArgumentsBatchTests(LoggingContext context)
         {
 
         }
