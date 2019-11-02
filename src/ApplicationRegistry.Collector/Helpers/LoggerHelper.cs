@@ -7,7 +7,6 @@ namespace System
     {
         private static Dictionary<Type, string> _categories = new Dictionary<Type, string>();
 
-        [ThreadStatic]
         public static ILoggerFactory LoggerFactory = new LoggerFactory();
 
         public static void SetCategoryNameForCaller(object caller, string categoryName)

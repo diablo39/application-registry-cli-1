@@ -26,31 +26,43 @@ namespace ApplicationRegistry.Collector
                     services
                         .AddTransient<BatchRunner>()
                         .AddTransient<SanitazeApplicationArgumentsBatch>()
-                        .AddTransient<ResultToFileSaveBatch>()
-                        .AddTransient<ResultToHttpEndpointBatch>()
+                        .AddTransient<ValidateArgumentsBatch>()
                         .AddTransient<CollectApplicationInfoBatch>()
+
+                        .AddTransient<GetReadmeBatch>()
                         .AddTransient<GenerateSwaggerSpecificationBatch>()
+                        .AddTransient<GenerateDatabaseSpecificationBatch>()
+
+
                         .AddTransient<CollectNugetDependenciesBatch>()
-                        .AddTransient<CollectAutorestClientDependenciesBatch>();
+                        .AddTransient<CollectAutorestClientDependenciesBatch>()
+                        .AddTransient<CollectDotnetCoreVersionDependecyBatch>()
+
+                        .AddTransient<ResultToFileSaveBatch>()
+                        .AddTransient<ResultToHttpEndpointBatch>();
 
                     services
                         .AddSingleton(PhysicalConsole.Singleton)
                         .AddTransient<IEnumerable<IBatch>>(s => new List<IBatch> {
                             s.GetRequiredService<SanitazeApplicationArgumentsBatch>(),
+                            s.GetRequiredService<ValidateArgumentsBatch>(),
                             s.GetRequiredService<CollectApplicationInfoBatch>(),
-                            //s.GetRequiredService<GenerateSwaggerSpecificationBatch>(),
-                            //s.GetRequiredService<CollectNugetDependenciesBatch>(),
+
+                            s.GetRequiredService<GetReadmeBatch>(),
+                            s.GetRequiredService<GenerateSwaggerSpecificationBatch>(),
+                            s.GetRequiredService<GenerateDatabaseSpecificationBatch>(),
+
+                            s.GetRequiredService<CollectDotnetCoreVersionDependecyBatch>(),
+                            s.GetRequiredService<CollectNugetDependenciesBatch>(),
                             s.GetRequiredService<CollectAutorestClientDependenciesBatch>(),
-                            //s.GetRequiredService<DependencyCollectorBatch<AutorestClientDependencyCollector>>(),
-                            //s.GetRequiredService<SpecificationGeneratorBatch<SwaggerSpecificationGenerator>>(),
+
                             s.GetRequiredService<ResultToFileSaveBatch>(),
-                            //s.GetRequiredService<ResultToHostSendBatch>(),
+                            s.GetRequiredService<ResultToHttpEndpointBatch>(),
                         });
                 })
                 .ConfigureLogging((context, builder) =>
                 {
-                    builder
-                        .AddConsole(options => { options.IncludeScopes = true; });
+                    builder.AddConsole(options => { options.IncludeScopes = false; });
 
                     builder.SetMinimumLevel(LogLevel.Trace);
                 })

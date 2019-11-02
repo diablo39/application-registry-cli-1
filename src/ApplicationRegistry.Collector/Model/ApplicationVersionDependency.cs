@@ -15,6 +15,8 @@ namespace ApplicationRegistry.Collector.Model
             public string Path { get; set; }
 
             public bool IsInUse { get; set; }
+
+            public string HttpMethod { get; internal set; }
         }
 
         [Required]

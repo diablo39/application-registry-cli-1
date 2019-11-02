@@ -8,43 +8,32 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Xml.Linq;
-using ILogger = Microsoft.Extensions.Logging.ILogger;
 
 namespace ApplicationRegistry.Collector
 {
     public class DotNetProjectFactory
     {
-        private readonly ILoggerFactory _loggerFactory;
-
-        public DotNetProjectFactory(ILoggerFactory loggerFactory)
-        {
-            _loggerFactory = loggerFactory;
-        }
-
         public DotNetProject CreateProject(string path)
         {
-            var logger = _loggerFactory.CreateLogger("DotNetProject");
-            var instance = new DotNetProject(logger, path);
+            var instance = new DotNetProject(path);
             return instance;
         }
     }
 
     public class DotNetProject : IDisposable
     {
-        private readonly ILogger _logger;
         private readonly string _projectFile;
         private readonly string _projectDirectory;
         private readonly List<(string file, string bakFile)> _filesToRollBack = new List<(string file, string bakFile)>();
         private readonly List<string> _filesToRemove = new List<string>();
 
-        public DotNetProject(ILogger logger, string projectFile)
+        public DotNetProject(string projectFile)
         {
             if (string.IsNullOrWhiteSpace(projectFile))
             {
                 throw new ArgumentException("Field cant't be null or white space", nameof(projectFile));
             }
 
-            _logger = logger;
             _projectFile = projectFile;
             var projectFileBak = BackupFile(projectFile);
             _filesToRollBack.Add((projectFile, projectFileBak));
@@ -109,7 +98,7 @@ namespace ApplicationRegistry.Collector
                 {
                     var lines = process.StandardOutput.ReadToEnd();
 
-                    lines.LogDebug(this);
+                    lines.LogTrace(this);
 
                     result.Append(lines);
                 }
@@ -127,7 +116,7 @@ namespace ApplicationRegistry.Collector
             {
                 Thread.Sleep(5000); // TODO: this is wrong!!!
 
-                throw new Exception("Operation failed. Error: " + result.ToString());
+                throw new Exception(string.Concat("Operation failed. Error: ", Environment.NewLine, result.ToString()));
             }
 
             return result.ToString();
@@ -166,7 +155,7 @@ namespace ApplicationRegistry.Collector
         {
             var commandBuilder = new StringBuilder("build -v q ");
             commandBuilder.Append("\"" + _projectFile + "\"");
-            
+
             if (!string.IsNullOrWhiteSpace(startupObject))
                 SetStartupObject(startupObject);
 
@@ -187,12 +176,12 @@ namespace ApplicationRegistry.Collector
                 while (!process.HasExited)
                 {
                     var output = process.StandardOutput.ReadToEnd();
-                    output.LogDebug(this);
+                    output.LogTrace(this);
                 }
 
                 if (process.ExitCode != 0)
                 {
-                    _logger.LogError("Error while building application");
+                    "Error while building application".LogError(this);
                     throw new Exception("Project can't be build. Read previous erroros ");
                 }
             }

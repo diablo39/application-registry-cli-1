@@ -11,12 +11,10 @@ namespace ApplicationRegistry.Collector.Batches
 {
     class ResultToFileSaveBatch : IBatch
     {
-        private readonly ILogger<ResultToFileSaveBatch> _logger;
         private readonly FileSystem _fileSystem;
 
-        public ResultToFileSaveBatch(ILogger<ResultToFileSaveBatch> logger, FileSystem fileSystem)
+        public ResultToFileSaveBatch(FileSystem fileSystem)
         {
-            _logger = logger;
             _fileSystem = fileSystem;
         }
 
@@ -35,7 +33,7 @@ namespace ApplicationRegistry.Collector.Batches
 
                 await _fileSystem.File_WriteAllTextAsync(context.Arguments.FileOutput, content, Encoding.UTF8);
 
-                "Content saved to: {0}{1}Generated content:{2}{3}".LogTrace(this, 
+                "Content saved to: {0}{1}Generated content:{2}{3}".LogDebug(this, 
                     context.Arguments.FileOutput, 
                     Environment.NewLine, 
                     Environment.NewLine, 

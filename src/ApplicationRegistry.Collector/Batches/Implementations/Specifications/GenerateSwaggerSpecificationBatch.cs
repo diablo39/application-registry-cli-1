@@ -4,20 +4,12 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace ApplicationRegistry.Collector.Batches.Implementations
 {
     class GenerateSwaggerSpecificationBatch : IBatch
     {
-        private readonly ILoggerFactory _loggerFactory;
-
-        public GenerateSwaggerSpecificationBatch(ILoggerFactory loggerFactory)
-        {
-            _loggerFactory = loggerFactory;
-        }
-
         public Task<BatchExecutionResult> ProcessAsync(BatchContext context)
         {
             try
@@ -25,8 +17,9 @@ namespace ApplicationRegistry.Collector.Batches.Implementations
                 var swagger = GetSwaggerSpecification(context.Arguments.ProjectFilePath);
                 context.BatchResult.Specifications.AddRange(swagger);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                "Running swagger generator failed".LogError(this, ex);
                 return Task.FromResult(BatchExecutionResult.CreateErrorResult());
             }
 
@@ -35,36 +28,27 @@ namespace ApplicationRegistry.Collector.Batches.Implementations
 
         private List<ApplicationVersionSpecification> GetSwaggerSpecification(string projectFilePath)
         {
-            using (var project = new DotNetProject(_loggerFactory.CreateLogger<DotNetProject>(), projectFilePath))
+            using (var project = new DotNetProject(projectFilePath))
             {
                 "Starting standard build of the application".LogDebug(this);
                 project.Build();
-                "Standard build finished".LogDebug(this);
-
+                
                 "Adding new main function".LogDebug(this);
                 project.AddFile("ApplicationRegistryProgram.cs", Resources.ApplicationRegistryProgram_ignore, true);
-                "New main function added".LogDebug(this);
-
+                
                 project.DisableCompilationForCshtml();
-
+                "Starting build with custom Program class".LogDebug(this);
                 project.Build("ApplicationRegistry.ApplicationRegistryProgram");
-
+                
                 var filePath = Path.GetTempFileName();
 
-                try
-                {
-                    project.Run(filePath);
-                }
-                catch (Exception)
-                {
-                    "Running swagger generator failed".LogError(this);
-
-                    throw;
-                }
+                project.Run(filePath);
 
                 if (!File.Exists(filePath)) return new List<ApplicationVersionSpecification>();
 
                 var swagger = File.ReadAllText(filePath);
+
+                File.Delete(filePath);
 
                 return new List<ApplicationVersionSpecification>() {
                     new ApplicationVersionSpecification {

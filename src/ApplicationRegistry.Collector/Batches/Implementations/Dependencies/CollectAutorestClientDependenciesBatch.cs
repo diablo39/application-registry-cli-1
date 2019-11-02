@@ -18,7 +18,6 @@ namespace ApplicationRegistry.Collector.Batches.Implementations.Dependencies
     {
         private const string _restClientBaseClassName = "Microsoft.Rest.ServiceClient`1";
 
-
         public async Task<BatchExecutionResult> ProcessAsync(BatchContext context)
         {
             try
@@ -53,7 +52,7 @@ namespace ApplicationRegistry.Collector.Batches.Implementations.Dependencies
 
             if (restClientBaseClass == null) 
             {
-                "No autorest type found in solution".LogError(this);
+                "No autorest type found in solution".LogInfo(this);
                 return result;
             }
 
@@ -68,8 +67,7 @@ namespace ApplicationRegistry.Collector.Batches.Implementations.Dependencies
 
                 foreach (var member in members)
                 {
-                    var methodName = member.Name.Substring(0, member.Name.Length - "WithHttpMessagesAsync".Length);
-
+                    string operationId = GetOperationId(member);
                     string path = GetPath(member);
                     string httpMethod = GetHttpMethod(member);
 
@@ -77,8 +75,9 @@ namespace ApplicationRegistry.Collector.Batches.Implementations.Dependencies
                         new ApplicationVersionDependency.Operation
                         {
                             IsInUse = false,
-                            OperationId = methodName,
-                            Path = "/" + path
+                            OperationId = operationId,
+                            Path = "/" + path,
+                            HttpMethod = httpMethod
                         });
                 }
 
@@ -97,6 +96,11 @@ namespace ApplicationRegistry.Collector.Batches.Implementations.Dependencies
             return result;
         }
 
+        private static string GetOperationId(IMethodSymbol member)
+        {
+            return member.Name.Substring(0, member.Name.Length - "WithHttpMessagesAsync".Length);
+        }
+
         private static ImmutableHashSet<Project> GetProjectsToBeScanned(AdhocWorkspace workspace, Project project)
         {
             var graph = workspace.CurrentSolution.GetProjectDependencyGraph();
@@ -113,7 +117,7 @@ namespace ApplicationRegistry.Collector.Batches.Implementations.Dependencies
             {
                 if (member.Locations.Length > 1 || member.Locations.Length == 0)
                 {
-                    "More then one location found for method. Skipping {0}".LogInfo(this, member.Name);
+                    "More then one location found for method. Skipping {0}".LogWarning(this, member.Name);
                     return "";
                 }
 
@@ -126,7 +130,7 @@ namespace ApplicationRegistry.Collector.Batches.Implementations.Dependencies
 
                 if (uriDeclaration.Count != 1)
                 {
-                    "MORE_THEN_ONE_URL_DECLARED".LogInfo(this);
+                    "MORE_THEN_ONE_URL_DECLARED".LogWarning(this);
 
                     return "";
                 }
@@ -145,7 +149,7 @@ namespace ApplicationRegistry.Collector.Batches.Implementations.Dependencies
 
                 if (string.IsNullOrWhiteSpace(path))
                 {
-                    "Path not found for member {0}".LogInfo(this, member.Name);
+                    "Path not found for member {0}".LogWarning(this, member.Name);
                 }
                 return path;
             }
