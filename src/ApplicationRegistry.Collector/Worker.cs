@@ -16,7 +16,6 @@ namespace ApplicationRegistry.Collector
 {
     class Worker
     {
-        private readonly string _newLine = System.Environment.NewLine;
 
         private readonly BatchRunner _batchRunner;
 
