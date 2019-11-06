@@ -96,44 +96,5 @@ namespace ApplicationRegistry.Collector
 
             return 0;
         }
-
-
-
-        private async Task RunCollectorAsync(ServiceProvider serviceProvider)
-        {
-            var logger = serviceProvider.GetService<ILogger<Program>>();
-
-            logger.LogInformation($"Starting application with parameters: {_newLine}\turl: {Url}{_newLine}\tApplication: {Applicatnion}{_newLine}\tPath: {this.ProjectFilePath}");
-
-            var result = new ApplicationInfo
-            {
-                ApplicationCode = Applicatnion,
-                IdEnvironment = Environment,
-                Version = Version,
-                ToolsVersion = typeof(Program).Assembly.GetName().Version.ToString()
-            };
-
-            if (!string.IsNullOrWhiteSpace(FileOutput))
-            {
-                File.WriteAllText(FileOutput, JsonConvert.SerializeObject(result, Formatting.Indented));
-            }
-
-            if (Url != null)
-            {
-                var client = new HttpClient();
-                client.BaseAddress = Url;
-
-                var postResult = await client.PostAsJsonAsync("/api/v1/collector", result);
-                if (!postResult.IsSuccessStatusCode)
-                {
-                    Console.WriteLine("Error occured. Response from the server:");
-
-                    var responseTest = await postResult.Content.ReadAsStringAsync();
-                    Console.WriteLine(responseTest);
-                }
-            }
-
-            Console.WriteLine();
-        }
     }
 }
