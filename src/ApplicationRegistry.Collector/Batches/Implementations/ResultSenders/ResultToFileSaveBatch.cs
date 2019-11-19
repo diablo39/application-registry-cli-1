@@ -3,7 +3,6 @@ using ApplicationRegistry.Collector.Wrappers;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
-using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -33,10 +32,10 @@ namespace ApplicationRegistry.Collector.Batches
 
                 await _fileSystem.File_WriteAllTextAsync(context.Arguments.FileOutput, content, Encoding.UTF8);
 
-                "Content saved to: {0}{1}Generated content:{2}{3}".LogDebug(this, 
-                    context.Arguments.FileOutput, 
-                    Environment.NewLine, 
-                    Environment.NewLine, 
+                "Content saved to: {0}{1}Generated content:{2}{3}".LogDebug(this,
+                    context.Arguments.FileOutput,
+                    Environment.NewLine,
+                    Environment.NewLine,
                     content);
             }
             catch (System.Exception e)

@@ -5,7 +5,6 @@ using Microsoft.CodeAnalysis;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace ApplicationRegistry.Collector.Batches.Implementations.Dependencies
@@ -21,17 +20,17 @@ namespace ApplicationRegistry.Collector.Batches.Implementations.Dependencies
 
             AnalyzerManager manager = new AnalyzerManager(solutionFilePath);
 
-            
+
 
             AdhocWorkspace workspace = manager.GetWorkspace();
 
             var project = workspace.CurrentSolution.Projects.FirstOrDefault(p => p.FilePath == projectFilePath);
 
-            
+
 
             var compilation = await project.GetCompilationAsync();
 
-            
+
 
             return BatchExecutionResult.CreateSuccessResult();
         }
