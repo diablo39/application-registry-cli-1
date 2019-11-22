@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace ApplicationRegistry.Collector.Batches
@@ -23,7 +22,7 @@ namespace ApplicationRegistry.Collector.Batches
         {
             PrintBatches();
             var activity = new Activity("Batches running").Start();
-            
+
             foreach (var batch in _batches)
             {
                 var batchName = batch.GetType().Name;

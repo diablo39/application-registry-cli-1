@@ -1,11 +1,9 @@
 ﻿using ApplicationRegistry.Collector.Batches.Implementations;
 using ApplicationRegistry.Collector.Tests.TestingInfrastructure;
+using FluentAssertions;
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 using Xunit;
-using FluentAssertions;
 
 namespace ApplicationRegistry.Collector.Tests.Batches
 {
