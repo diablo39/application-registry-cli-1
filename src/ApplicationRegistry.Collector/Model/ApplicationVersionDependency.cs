@@ -8,7 +8,7 @@ namespace ApplicationRegistry.Collector.Model
 {
     public class ApplicationVersionDependency
     {
-        public class Operation
+        internal class Operation
         {
             public string OperationId { get; set; }
 

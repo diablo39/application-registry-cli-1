@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 
-namespace ApplicationRegistry.Collector.Batches.Implementations
+namespace ApplicationRegistry.Collector.Batches.Implementations.Specifications
 {
     class GenerateSwaggerSpecificationBatch : IBatch
     {

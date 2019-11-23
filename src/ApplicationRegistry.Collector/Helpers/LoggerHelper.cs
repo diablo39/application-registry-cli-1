@@ -64,6 +64,11 @@ namespace System
             Log(caller, message, LogLevel.Error, ex, args);
         }
 
+        public static void LogError(this string message, object caller, params object[] args)
+        {
+            Log(caller, message, LogLevel.Error,args);
+        }
+
         public static void LogCritical(this string message, object caller, Exception ex = null, params object[] args)
         {
             Log(caller, message, LogLevel.Critical, ex, args);
@@ -80,6 +85,19 @@ namespace System
             var logger = LoggerFactory.CreateLogger(categoryName);
 
             logger.Log(logLevel, ex, message, args);
+        }
+
+        private static void Log(object caller, string message, LogLevel logLevel, params object[] args)
+        {
+            var categoryDefined = _categories.TryGetValue(caller.GetType(), out string categoryName);
+            if (!categoryDefined)
+            {
+                categoryName = caller.GetType().Name;
+            }
+
+            var logger = LoggerFactory.CreateLogger(categoryName);
+
+            logger.Log(logLevel, message, args);
         }
     }
 }

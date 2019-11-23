@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace ApplicationRegistry.Collector.Batches.Implementations
+namespace ApplicationRegistry.Collector.Batches.Implementations.Specifications
 {
     class GenerateDatabaseSpecificationBatch : IBatch
     {

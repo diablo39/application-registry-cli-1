@@ -4,17 +4,17 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using static ApplicationRegistry.Collector.BatchExecutionResult;
 
 namespace ApplicationRegistry.Collector.Batches
 {
     class BatchRunner
     {
-        private readonly ILogger<BatchRunner> _logger;
+
         private readonly IEnumerable<IBatch> _batches;
 
-        public BatchRunner(IEnumerable<IBatch> batches, ILogger<BatchRunner> logger)
+        public BatchRunner(IEnumerable<IBatch> batches)
         {
-            _logger = logger;
             _batches = batches;
         }
 
@@ -28,8 +28,36 @@ namespace ApplicationRegistry.Collector.Batches
                 var batchName = batch.GetType().Name;
                 "Starting {0}".LogInfo(this, batchName);
                 var batchActivity = new Activity(batchName + " Execution").Start();
-                var batchResult = await batch.ProcessAsync(context);
+                BatchExecutionResult batchResult = default(BatchExecutionResult);
+                Exception exceptionThrown = null;
+                try
+                {
+                    batchResult = await batch.ProcessAsync(context);
+                }
+                catch(Exception ex)
+                {
+                    exceptionThrown = ex;
+                    batchResult = BatchExecutionResult.CreateFailResult();
+                }
+
                 batchActivity.Stop();
+                if (batchResult.Result == ExecutionResult.Error)
+                {
+                    "Batch: {0} exited with error. Spikking batch and moving further".LogWarning(this, batch.GetType().ToString());
+                }
+                else if (batchResult.Result == ExecutionResult.Fail)
+                {
+                    if (exceptionThrown != null)
+                    {
+                        "Batch processing failed. Batch: {0} thrown exception. Stop processing.".LogError(this, exceptionThrown, batch.GetType().ToString());
+                    }
+                    else
+                    {
+                        "Batch processing failed. Batch: {0} failed and further processing can't be continued".LogError(this, batch.GetType().ToString());
+                    }
+
+                    break;
+                }
 
                 "Finished {0} with result: {1}{2}Execution took: {3}".LogInfo(this, batchName, batchResult.Result, Environment.NewLine, batchActivity.Duration);
             }
@@ -43,7 +71,7 @@ namespace ApplicationRegistry.Collector.Batches
         {
             var batches = string.Join("", _batches.Select(e => string.Concat(Environment.NewLine, "--> ", e.GetType().Name)));
 
-            _logger.LogInformation("Batches loaded: {0}", batches);
+            "Batches loaded: {0}".LogInfo(this, batches);
         }
     }
 }

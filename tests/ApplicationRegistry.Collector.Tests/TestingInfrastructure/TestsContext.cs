@@ -26,7 +26,60 @@ namespace ApplicationRegistry.Collector.Tests.TestingInfrastructure
         }
     }
 
-    public class TestingLogger : ILogger
+    public class TestingLogger: ILogger
+    {
+        public int Error { get; set; } = 0;
+        public int Critical { get; set; } = 0;
+        public int Warning { get; set; } = 0;
+        public int Info { get; set; } = 0;
+        public int Debug { get; set; } = 0;
+        public int Trace { get; set; } = 0;
+
+        public void ResetLogger()
+        {
+            Error = Critical = Info = Debug = Trace = Warning = 0;
+        }
+
+        public IDisposable BeginScope<TState>(TState state)
+        {
+            return null;
+        }
+
+        public bool IsEnabled(LogLevel logLevel)
+        {
+            return true;
+        }
+
+        public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
+        {
+            switch (logLevel)
+            {
+                case LogLevel.Trace:
+                    ++Trace;
+                    break;
+                case LogLevel.Debug:
+                    ++Debug;
+                    break;
+                case LogLevel.Information:
+                    ++Info;
+                    break;
+                case LogLevel.Warning:
+                    ++Warning;
+                    break;
+                case LogLevel.Error:
+                    ++Error;
+                    break;
+                case LogLevel.Critical:
+                    ++Critical;
+                    break;
+                case LogLevel.None:
+                default:
+                    break;
+            }
+        }
+    }
+
+    public class TestingLogger<T>: ILogger<T>
     {
 
         public int Error { get; set; } = 0;
@@ -79,7 +132,6 @@ namespace ApplicationRegistry.Collector.Tests.TestingInfrastructure
             }
         }
     }
-    
 
     public class LoggingContext
     {

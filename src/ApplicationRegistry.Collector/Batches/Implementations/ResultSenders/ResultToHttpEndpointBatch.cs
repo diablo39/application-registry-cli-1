@@ -2,7 +2,7 @@
 using System.Net.Http;
 using System.Threading.Tasks;
 
-namespace ApplicationRegistry.Collector.Batches
+namespace ApplicationRegistry.Collector.Batches.Implementations.ResultSenders
 {
     class ResultToHttpEndpointBatch : IBatch
     {
