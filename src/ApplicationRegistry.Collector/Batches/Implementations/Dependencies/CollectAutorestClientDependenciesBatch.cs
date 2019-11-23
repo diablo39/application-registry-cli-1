@@ -62,7 +62,7 @@ namespace ApplicationRegistry.Collector.Batches.Implementations.Dependencies
 
             foreach (var restClient in restClients)
             {
-                var members = restClient.GetMembers().OfType<IMethodSymbol>().Where(t => t.Name.EndsWith("WithHttpMessagesAsync")).ToList();
+                var members = restClient.GetMembers().OfType<IMethodSymbol>().Where(t => t.Name.EndsWith("WithHttpMessagesAsync", StringComparison.InvariantCultureIgnoreCase)).ToList();
                 var operations = new List<ApplicationVersionDependency.Operation>();
 
                 foreach (var member in members)

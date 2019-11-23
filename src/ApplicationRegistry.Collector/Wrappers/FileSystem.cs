@@ -8,9 +8,9 @@ namespace ApplicationRegistry.Collector.Wrappers
     /// <summary>
     /// Thread safe
     /// </summary>
-    class FileSystem
+    internal class FileSystem
     {
-        public Task File_WriteAllTextAsync(string path, string contents, Encoding encoding)
+        public virtual Task WriteAllTextAsync(string path, string contents, Encoding encoding)
         {
             return File.WriteAllTextAsync(path, contents, encoding);
         }

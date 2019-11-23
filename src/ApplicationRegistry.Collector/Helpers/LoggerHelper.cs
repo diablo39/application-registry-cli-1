@@ -24,67 +24,49 @@ namespace System
             }
         }
 
-        public static string LogWarning(this string message, object caller, params object[] args)
+        public static void LogWarning(this string message, object caller, params object[] args)
         {
             Log(caller, message, LogLevel.Warning, null, args);
-
-            return message;
         }
 
-        public static string LogInfo(this string message, object caller, params object[] args)
+        public static void LogInfo(this string message, object caller, params object[] args)
         {
             Log(caller, message, LogLevel.Information, null, args);
-
-            return message;
         }
 
-        public static string LogDebug(this string message, object caller, params object[] args)
+        public static void LogDebug(this string message, object caller, params object[] args)
         {
             Log(caller, message, LogLevel.Debug, null, args);
-
-            return message;
         }
 
-        public static string LogTrace(this string message, object caller, params object[] args)
+        public static void LogTrace(this string message, object caller, params object[] args)
         {
             Log(caller, message, LogLevel.Trace, args: args);
-
-            return message;
         }
 
-        public static string LogDebugWithFormat(this string message, object caller, string format)
+        public static void LogDebugWithFormat(this string message, object caller, string format)
         {
             Log(caller, format, LogLevel.Debug, null, message);
-
-            return message;
         }
 
-        public static string LogTraceWithFormat(this string message, object caller, string format)
+        public static void LogTraceWithFormat(this string message, object caller, string format)
         {
             Log(caller, format, LogLevel.Trace, null, message);
-
-            return message;
         }
 
-        public static string LogErrorWithFormat(this string message, object caller, string format)
+        public static void LogErrorWithFormat(this string message, object caller, string format)
         {
             Log(caller, format, LogLevel.Error, null, message);
-
-            return message;
         }
 
-        public static string LogError(this string message, object caller, Exception ex = null, params object[] args)
+        public static void LogError(this string message, object caller, Exception ex = null, params object[] args)
         {
             Log(caller, message, LogLevel.Error, ex, args);
-
-            return message;
         }
 
-        public static string LogCritical(this string message, object caller, Exception ex = null, params object[] args)
+        public static void LogCritical(this string message, object caller, Exception ex = null, params object[] args)
         {
             Log(caller, message, LogLevel.Critical, ex, args);
-
-            return message;
         }
 
         private static void Log(object caller, string message, LogLevel logLevel, Exception ex = null, params object[] args)

@@ -21,7 +21,7 @@ namespace ApplicationRegistry.Collector.Tests.Wrappers
             var filesystem  = new FileSystem();
 
             // Act
-            await filesystem.File_WriteAllTextAsync(path, fileContent, encoding);
+            await filesystem.WriteAllTextAsync(path, fileContent, encoding);
 
             // Assert
             var fileContentRead = File.ReadAllText(path, encoding);

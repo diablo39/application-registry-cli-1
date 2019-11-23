@@ -28,17 +28,13 @@ namespace ApplicationRegistry.Collector.Tests.TestingInfrastructure
 
     public class TestingLogger : ILogger
     {
-        public int Critical = 0;
 
-        public int Error = 0;
-
-        public int Warning = 0;
-        
-        public int Info = 0;
-
-        public int Debug = 0;
-
-        public int Trace = 0;
+        public int Error { get; set; } = 0;
+        public int Critical { get; set; } = 0;
+        public int Warning { get; set; } = 0;
+        public int Info { get; set; } = 0;
+        public int Debug { get; set; } = 0;
+        public int Trace { get; set; } = 0;
 
         public void ResetLogger()
         {
@@ -87,7 +83,7 @@ namespace ApplicationRegistry.Collector.Tests.TestingInfrastructure
 
     public class LoggingContext
     {
-        public TestingLogger Logger = new TestingLogger();
+        public TestingLogger Logger { get; set; } = new TestingLogger();
 
         public LoggingContext()
         {
@@ -99,6 +95,7 @@ namespace ApplicationRegistry.Collector.Tests.TestingInfrastructure
             Logger.ResetLogger();
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "<Pending>")]
         private LoggerFactory CreateLoggerFactory()
         {
             var loggerFactory = new LoggerFactory();

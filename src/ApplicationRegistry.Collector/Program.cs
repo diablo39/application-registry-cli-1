@@ -7,6 +7,7 @@ using ApplicationRegistry.Collector.Batches;
 using ApplicationRegistry.Collector.Batches.Implementations;
 using ApplicationRegistry.Collector.Wrappers;
 using ApplicationRegistry.Collector.Batches.Implementations.Dependencies;
+using ApplicationRegistry.Collector.Batches.Implementations.ResultSenders;
 
 namespace ApplicationRegistry.Collector
 {

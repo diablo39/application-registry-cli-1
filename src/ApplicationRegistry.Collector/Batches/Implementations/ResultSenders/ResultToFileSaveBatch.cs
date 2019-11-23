@@ -6,9 +6,9 @@ using System;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ApplicationRegistry.Collector.Batches
+namespace ApplicationRegistry.Collector.Batches.Implementations.ResultSenders
 {
-    class ResultToFileSaveBatch : IBatch
+    internal class ResultToFileSaveBatch : IBatch
     {
         private readonly FileSystem _fileSystem;
 
@@ -30,7 +30,7 @@ namespace ApplicationRegistry.Collector.Batches
             {
                 var content = JsonConvert.SerializeObject(context.BatchResult, Formatting.Indented);
 
-                await _fileSystem.File_WriteAllTextAsync(context.Arguments.FileOutput, content, Encoding.UTF8);
+                await _fileSystem.WriteAllTextAsync(context.Arguments.FileOutput, content, Encoding.UTF8);
 
                 "Content saved to: {0}{1}Generated content:{2}{3}".LogDebug(this,
                     context.Arguments.FileOutput,
