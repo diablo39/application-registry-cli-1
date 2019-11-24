@@ -12,7 +12,7 @@ namespace ApplicationRegistry.Collector.Batches
             context.Arguments.ProjectFilePath = context.Arguments.ProjectFilePath.TrimEnd('"');
             context.Arguments.ProjectFilePath = System.IO.Path.GetFullPath(context.Arguments.ProjectFilePath);
 
-            if (!context.Arguments.ProjectFilePath.EndsWith(".csproj")) // directory provided
+            if (!context.Arguments.ProjectFilePath.EndsWith(".csproj", StringComparison.InvariantCultureIgnoreCase)) // directory provided
             {
                 var files = Directory.EnumerateFiles(context.Arguments.ProjectFilePath, "*.csproj").ToList();
 

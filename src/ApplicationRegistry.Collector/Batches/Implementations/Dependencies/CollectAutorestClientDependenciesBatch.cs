@@ -126,7 +126,7 @@ namespace ApplicationRegistry.Collector.Batches.Implementations.Dependencies
                                         .SourceTree.GetRoot()
                                         .FindNode(member.Locations[0].SourceSpan)
                                         .DescendantNodes()
-                                        .Where(n => n.GetText().ToString().Contains("var _url ") && n is LocalDeclarationStatementSyntax)
+                                        .Where(n => n.GetText().ToString().Contains("var _url ", StringComparison.InvariantCultureIgnoreCase) && n is LocalDeclarationStatementSyntax)
                                         .ToList();
 
                 if (uriDeclaration.Count != 1)
@@ -143,7 +143,7 @@ namespace ApplicationRegistry.Collector.Batches.Implementations.Dependencies
                     .FirstOrDefault(n =>
                     {
                         var text = n.GetText().ToString();
-                        return text != "\"/\"" && text != "\"\"" && text != "" && text != "\"\" ";
+                        return text != "\"/\"" && text != "\"\"" && !string.IsNullOrEmpty(text) && text != "\"\" ";
                     });
 
                 var path = literals?.GetText()?.ToString()?.Trim('"') ?? "";
@@ -176,7 +176,7 @@ namespace ApplicationRegistry.Collector.Batches.Implementations.Dependencies
                                         .FindNode(member.Locations[0].SourceSpan)
                                         .DescendantNodes()
                                         .OfType<AssignmentExpressionSyntax>()
-                                        .SingleOrDefault(n => n.GetText().ToString().Contains("_httpRequest.Method = "));
+                                        .SingleOrDefault(n => n.GetText().ToString().Contains("_httpRequest.Method = ", StringComparison.InvariantCultureIgnoreCase));
 
                 if (methodAssignment == null)
                 {

@@ -12,6 +12,7 @@
     <Authors>Roman Glogowski</Authors>
     <Company>Roman</Company>
     <RepositoryType>git</RepositoryType>
+    <NeutralLanguage>pl</NeutralLanguage>
   </PropertyGroup>
 
   <ItemGroup>

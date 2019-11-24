@@ -137,9 +137,8 @@ namespace ApplicationRegistry.Collector
                 RedirectStandardError = true
             };
 
-            using (var process = new Process())
+            using (var process = new Process { StartInfo = start })
             {
-                process.StartInfo = start;
                 process.Start();
                 process.WaitForExit();
 
@@ -153,8 +152,7 @@ namespace ApplicationRegistry.Collector
 
         public void Build(string startupObject = null)
         {
-            var commandBuilder = new StringBuilder("build -v q ");
-            commandBuilder.Append("\"" + _projectFile + "\"");
+            var commandBuilder = new StringBuilder($"build -v q \"{_projectFile}\"");
 
             if (!string.IsNullOrWhiteSpace(startupObject))
                 SetStartupObject(startupObject);
@@ -168,9 +166,8 @@ namespace ApplicationRegistry.Collector
                 RedirectStandardInput = true
             };
 
-            using (var process = new Process())
+            using (var process = new Process { StartInfo = start })
             {
-                process.StartInfo = start;
                 process.Start();
 
                 while (!process.HasExited)
@@ -315,7 +312,9 @@ namespace ApplicationRegistry.Collector
             }
         }
 
+
         // This code added to correctly implement the disposable pattern.
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "CA1816:Dispose methods should call SuppressFinalize", Justification = "<Pending>")]
         public void Dispose()
         {
             // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
