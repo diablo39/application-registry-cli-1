@@ -1,5 +1,6 @@
 ﻿using ApplicationRegistry.Collector.Model;
 using ApplicationRegistry.Collector.Properties;
+using ApplicationRegistry.Collector.Wrappers;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -10,6 +11,12 @@ namespace ApplicationRegistry.Collector.Batches.Implementations.Specifications
 {
     class GenerateSwaggerSpecificationBatch : IBatch
     {
+        readonly FileSystem _fileSystem;
+        public GenerateSwaggerSpecificationBatch(FileSystem fileSystem)
+        {
+            _fileSystem = fileSystem;
+        }
+
         public Task<BatchExecutionResult> ProcessAsync(BatchContext context)
         {
             try
@@ -44,11 +51,11 @@ namespace ApplicationRegistry.Collector.Batches.Implementations.Specifications
 
                 project.Run(filePath);
 
-                if (!File.Exists(filePath)) return new List<ApplicationVersionSpecification>();
+                if (!_fileSystem.FileExists(filePath)) return new List<ApplicationVersionSpecification>();
 
-                var swagger = File.ReadAllText(filePath);
+                var swagger = _fileSystem.ReadAllText(filePath);
 
-                File.Delete(filePath);
+                _fileSystem.DeleteFile(filePath);
 
                 return new List<ApplicationVersionSpecification>() {
                     new ApplicationVersionSpecification {
