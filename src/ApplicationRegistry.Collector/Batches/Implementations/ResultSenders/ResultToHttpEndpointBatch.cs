@@ -8,11 +8,13 @@ namespace ApplicationRegistry.Collector.Batches.Implementations.ResultSenders
     {
         public async Task<BatchExecutionResult> ProcessAsync(BatchContext context)
         {
-            HttpResponseMessage postResult = null;
+            
             Uri url = context.Arguments.Url;
 
             if (url != null)
             {
+                HttpResponseMessage postResult = null;
+
                 try
                 {
                     var client = new HttpClient
