@@ -6,7 +6,7 @@ namespace ApplicationRegistry.Collector
     {
         public string Version { get; set; }
 
-        public string Applicatnion { get; set; }
+        public string Application { get; set; }
 
         public string Environment { get; set; }
 

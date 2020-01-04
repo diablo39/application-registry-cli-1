@@ -6,7 +6,7 @@ namespace ApplicationRegistry.Collector.Batches.Implementations
     {
         public Task<BatchExecutionResult> ProcessAsync(BatchContext context)
         {
-            context.BatchResult.ApplicationCode = context.Arguments.Applicatnion;
+            context.BatchResult.ApplicationCode = context.Arguments.Application;
             context.BatchResult.IdEnvironment = context.Arguments.Environment;
             context.BatchResult.Version = context.Arguments.Version;
 
