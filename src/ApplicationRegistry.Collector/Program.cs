@@ -9,15 +9,53 @@ using ApplicationRegistry.Collector.Wrappers;
 using ApplicationRegistry.Collector.Batches.Implementations.Dependencies;
 using ApplicationRegistry.Collector.Batches.Implementations.ResultSenders;
 using ApplicationRegistry.Collector.Batches.Implementations.Specifications;
+using System.ComponentModel.DataAnnotations;
+using System;
+using System.Threading.Tasks;
 
 namespace ApplicationRegistry.Collector
 {
-
-    class Program
+    partial class Program
     {
-        public static int Main(string[] args)
+        [Required]
+        [Option("-v|--version <VERSION>", "Version of the application", CommandOptionType.SingleValue)]
+        public string Version { get; }
+
+        [Required]
+        [Option("-a|--application <APPLICATION>", "Code of the application", CommandOptionType.SingleValue)]
+        public string Applicatnion { get; }
+
+        [Required]
+        [Option("-e|--env <ENV>", "Environment", CommandOptionType.SingleValue)]
+        public string Environment { get; }
+
+        [Option("-s|--solution <solution>", "Path to the solution", CommandOptionType.SingleValue)]
+        public string SolutionFilePath { get; set; }
+
+        [Required]
+        [FileOrDirectoryExists]
+        [Option("-p|--path <PATH>", "Path to the project file, or directory where single csproj file is located", CommandOptionType.SingleValue)]
+        public string ProjectFilePath { get; set; }
+
+        [Option("--output-file <PATH>", "Path to output file", CommandOptionType.SingleValue)]
+        public string FileOutput { get; set; }
+
+        [Url]
+        [Option("-u|--output-url <URL>", "Url to Application Registry", CommandOptionType.SingleValue)]
+        public Uri Url { get; set; }
+
+
+        public static int Main(string[] args) => CommandLineApplication.Execute<Program>(args);
+
+        private static string _newLine = System.Environment.NewLine;
+
+        public async Task<int> OnExecute()
         {
-            return new HostBuilder()
+
+            var arguments = new BatchProcessArgumentsFactory().Create(Applicatnion, Environment, FileOutput, ProjectFilePath, SolutionFilePath, Url, Version);
+            var batchContext = new BatchContext(arguments);
+
+            await new HostBuilder()
                 .ConfigureServices((context, services) =>
                 {
                     services
@@ -25,9 +63,12 @@ namespace ApplicationRegistry.Collector
 
                     services.AddSingleton<FileSystem>();
 
+                    services.AddSingleton(batchContext);
+
+
+
                     services
                         .AddTransient<BatchRunner>()
-                        .AddTransient<SanitazeApplicationArgumentsBatch>()
                         .AddTransient<ValidateArgumentsBatch>()
                         .AddTransient<CollectApplicationInfoBatch>()
 
@@ -46,7 +87,6 @@ namespace ApplicationRegistry.Collector
                     services
                         .AddSingleton(PhysicalConsole.Singleton)
                         .AddTransient<IEnumerable<IBatch>>(s => new List<IBatch> {
-                            s.GetRequiredService<SanitazeApplicationArgumentsBatch>(),
                             s.GetRequiredService<ValidateArgumentsBatch>(),
                             s.GetRequiredService<CollectApplicationInfoBatch>(),
 
@@ -62,17 +102,23 @@ namespace ApplicationRegistry.Collector
                             s.GetRequiredService<ResultToHttpEndpointBatch>(),
                         });
                 })
+                .ConfigureServices((host, services) =>
+                {
+                    services.AddHostedService<WorkerService>();
+                })
                 .ConfigureLogging((context, builder) =>
                 {
                     builder.AddConsole(options => { options.IncludeScopes = false; });
 
                     builder.SetMinimumLevel(LogLevel.Trace);
                 })
-                .RunCommandLineApplicationAsync<Worker>(args)
-                .GetAwaiter()
-                .GetResult();
 
+                .Build()
+                .StartAsync();
+
+            return 0;
         }
+
     }
 
 }

@@ -60,3 +60,27 @@ namespace ApplicationRegistry.Collector.Batches.Implementations.ResultSenders
         }
     }
 }
+
+
+//try
+//{
+//    await RunCollectorAsync(serviceProvider);
+//}
+//catch (Exception ex)
+//{
+//    logger.LogCritical(ex, "Execution failed");
+
+//    if (Url != null)
+//    {
+//        var client = new HttpClient();
+//        client.BaseAddress = Url;
+
+//        await client.PostAsJsonAsync("/api/v1/Collector/Error", new CollectorError
+//        {
+//            ApplicationCode = Applicatnion,
+//            ErrorMessage = ex.Message + System.Environment.NewLine + ex.StackTrace,
+//            IdEnvironment = Environment,
+//            Version = Version
+//        });
+//    }
+//}
