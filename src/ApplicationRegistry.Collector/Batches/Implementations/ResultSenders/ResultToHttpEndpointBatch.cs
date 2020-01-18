@@ -1,11 +1,19 @@
 ﻿using System;
 using System.Net.Http;
 using System.Threading.Tasks;
+using ApplicationRegistry.BackendHttpClient;
 
 namespace ApplicationRegistry.Collector.Batches.Implementations.ResultSenders
 {
     class ResultToHttpEndpointBatch : IBatch
     {
+        private readonly ServerClient _client;
+
+        public ResultToHttpEndpointBatch(ServerClient client)
+        {
+            _client = client ?? throw new ArgumentNullException(nameof(client));
+        }
+
         public async Task<BatchExecutionResult> ProcessAsync(BatchContext context)
         {
             
