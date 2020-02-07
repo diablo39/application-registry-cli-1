@@ -20,11 +20,22 @@ namespace ApplicationRegistry.Collector
                 Version = version
             };
 
-            NewMethod(arguments);
+            try
+            {
+                ProcessProjectFile(arguments);
+
+                ProcessSolutionFile(arguments);
+            }
+            catch (Exception ex)
+            {
+                ex.Message.LogCritical(this, ex);
+                return null;
+            }
+
             return arguments;
         }
 
-        private void NewMethod(BatchProcessArguments arguments)
+        private void ProcessProjectFile(BatchProcessArguments arguments)
         {
             arguments.ProjectFilePath = arguments.ProjectFilePath.TrimEnd('"');
             arguments.ProjectFilePath = System.IO.Path.GetFullPath(arguments.ProjectFilePath);
@@ -33,31 +44,28 @@ namespace ApplicationRegistry.Collector
             {
                 var files = Directory.EnumerateFiles(arguments.ProjectFilePath, "*.csproj").ToList();
 
-                if (files.Count == 0)
+                switch (files.Count)
                 {
-                    "Project file not found. Please try to set full path to your *.csproj file".LogCritical(this);
-                    return;
+                    case 0:
+                        throw new ArgumentException("Project file not found. Please try to set full path to your *.csproj file");
+                    case 1:
+                        arguments.ProjectFilePath = files[0];
+                        break;
+                    default:
+                        throw new ArgumentException(string.Format("Error: More than one project found in directory {0}. Set full path to the project file", arguments.ProjectFilePath));
                 }
-
-                if (files.Count > 1)
-                {
-                    Console.Error.WriteLine("Error: More than one project found in directory {0}", arguments.ProjectFilePath); // TODO: try to use result as store
-                    Console.Error.WriteLine("Set full path to the project file");
-
-                    return; //throw
-                }
-
-                arguments.ProjectFilePath = files[0];
             }
+        }
 
+        private void ProcessSolutionFile(BatchProcessArguments arguments)
+        {
             if (string.IsNullOrWhiteSpace(arguments.SolutionFilePath))
             {
                 var success = FindSolutionFile(arguments);
 
                 if (!success)
                 {
-                    Console.Error.WriteLine("Solution file can't be found, try to set seolution file location explicitly"); // TODO: try to use result as store
-                    return; //throw
+                    throw new ArgumentException("Solution file can't be found, try to set seolution file location explicitly");
                 }
             }
             else
@@ -66,7 +74,7 @@ namespace ApplicationRegistry.Collector
             }
         }
 
-        private static bool FindSolutionFile(BatchProcessArguments arguments)
+        private bool FindSolutionFile(BatchProcessArguments arguments)
         {
             bool success = false;
 

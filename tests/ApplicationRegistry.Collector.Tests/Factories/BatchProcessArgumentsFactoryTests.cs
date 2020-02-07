@@ -28,26 +28,24 @@ namespace ApplicationRegistry.Collector.Tests.Factories
         }
 
 
-        //[Fact]
-        //public void Factory_Nonexisting_ProjectFile_Path_ShouldFail()
-        //{
-        //    var batch = new SanitazeApplicationArgumentsBatch();
-        //    var context = new BatchContext(new BatchProcessArguments
-        //    {
-        //        ProjectFilePath = Path.GetFullPath(".")
-        //    });
+        [Fact]
+        public void Factory_Nonexisting_ProjectFile_Path_ShouldFail()
+        {
+            var factory = new BatchProcessArgumentsFactory();
 
-        //    var result = await batch.ProcessAsync(context);
+            var result = factory.Create(
+                "application",
+                "env",
+                "",
+                Path.GetFullPath("."), 
+                null, 
+                null, 
+                "");
 
-        //    var currentProjectFile = context.Arguments.ProjectFilePath;
-        //    var currentSolutionFile = context.Arguments.SolutionFilePath;
 
-
-        //    result.Should().NotBeNull();
-        //    result.Result.Should().Be(BatchExecutionResult.ExecutionResult.Fail);
-        //    //currentProjectFile.Should().Be(expectedProjectFile);
-        //    //currentSolutionFile.Should().Be(expectedSolutionFile);
-        //}
+            result.Should().BeNull();
+     
+        }
 
         public static IEnumerable<object[]> DataForHappyPath
         {

@@ -51,8 +51,12 @@ namespace ApplicationRegistry.Collector
 
         public async Task<int> OnExecute()
         {
+            BatchProcessArguments arguments = new BatchProcessArgumentsFactory().Create(Applicatnion, Environment, FileOutput, ProjectFilePath, SolutionFilePath, Url, Version);
+            if (arguments == null)
+            {
+                return 0;
+            }
 
-            var arguments = new BatchProcessArgumentsFactory().Create(Applicatnion, Environment, FileOutput, ProjectFilePath, SolutionFilePath, Url, Version);
             var batchContext = new BatchContext(arguments);
 
             await new HostBuilder()
