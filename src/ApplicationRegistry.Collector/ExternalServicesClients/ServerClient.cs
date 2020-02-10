@@ -26,30 +26,36 @@ namespace ApplicationRegistry.BackendHttpClient
         public async Task<bool> SendCollectedDataAsync(ApplicationInfo applicationInfo)
         {
             const string RequestUri = "/api/v1/collector";
+            var url = Path.Combine(_client.BaseAddress?.ToString(), RequestUri);
+            HttpResponseMessage postResult = null;
 
-            using (var postResult = await _client.PostAsJsonAsync(RequestUri, applicationInfo))
+            try
             {
-                try
-                {
-                    postResult.EnsureSuccessStatusCode();
-                    return true;
-                }
-                catch (HttpRequestException ex)
-                {
-                    var url = Path.Combine(_client.BaseAddress?.ToString(), RequestUri);
-                    if (postResult != null)
-                    {
-                        var responseTest = await postResult.Content.ReadAsStringAsync();
-                        "Exception during sending results over http to: {0}{1}Content returned:{2}{3}.".LogError(this, ex, RequestUri, Environment.NewLine, Environment.NewLine, responseTest);
-                    }
-                    else
-                    {
-                        "Exception during sending results over http to {0}.".LogError(this, ex, RequestUri);
-                    }
-
-                    return false;
-                }
+                postResult = await _client.PostAsJsonAsync(RequestUri, applicationInfo);
+                postResult.EnsureSuccessStatusCode();
+                return true;
             }
+            catch (HttpRequestException ex)
+            {
+                
+                if (postResult != null)
+                {
+                    var responseTest = await postResult.Content.ReadAsStringAsync();
+                    "Exception during sending results over http to: {0}{1}Content returned:{2}{3}.".LogError(this, ex, url, Environment.NewLine, Environment.NewLine, responseTest);
+                }
+                else
+                {
+                    "Exception during sending results over http to {0}.".LogError(this, ex, url);
+                }
+
+                return false;
+            }
+            catch (Exception ex)
+            {
+                "Exception during sending results over http to {0}.".LogError(this, ex, url);
+                return false;
+            }
+
         }
     }
 }

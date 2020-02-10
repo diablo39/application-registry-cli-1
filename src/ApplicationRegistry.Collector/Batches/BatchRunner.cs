@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -11,10 +12,14 @@ namespace ApplicationRegistry.Collector.Batches
     class BatchRunner
     {
 
-        private readonly IEnumerable<IBatch> _batches;
+        private readonly IApplicationLifetime _applicationLifetime;
 
-        public BatchRunner(IEnumerable<IBatch> batches)
+        private readonly IEnumerable<IBatch> _batches;
+        readonly IHost _host;
+
+        public BatchRunner(IEnumerable<IBatch> batches, IHost host = null)
         {
+            this._host = host;
             _batches = batches;
         }
 
@@ -65,6 +70,7 @@ namespace ApplicationRegistry.Collector.Batches
             activity.Stop();
 
             "Processing of all batches finished after: {0}".LogInfo(this, activity.Duration);
+            await _host?.StopAsync();
         }
 
         private void PrintBatches()

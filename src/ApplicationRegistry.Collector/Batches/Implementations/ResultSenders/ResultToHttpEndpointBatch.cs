@@ -7,7 +7,7 @@ namespace ApplicationRegistry.Collector.Batches.Implementations.ResultSenders
 {
     class ResultToHttpEndpointBatch : IBatch
     {
-        private readonly ServerClient _client;
+        private ServerClient _client;
 
         public ResultToHttpEndpointBatch(ServerClient client)
         {
@@ -34,6 +34,10 @@ namespace ApplicationRegistry.Collector.Batches.Implementations.ResultSenders
                 {
                     "Exception during sending results over http to {0}.".LogError(this, ex, url);
                     return BatchExecutionResult.CreateFailResult();
+                }
+                finally
+                {
+                    _client = null; 
                 }
 
             }

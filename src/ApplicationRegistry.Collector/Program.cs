@@ -61,7 +61,7 @@ namespace ApplicationRegistry.Collector
 
             var batchContext = new BatchContext(arguments);
 
-            await new HostBuilder()
+            new HostBuilder()
                 .ConfigureServices((context, services) =>
                 {
                     services.AddLogging();
@@ -105,11 +105,8 @@ namespace ApplicationRegistry.Collector
                             s.GetRequiredService<ResultToFileSaveBatch>(),
                             s.GetRequiredService<ResultToHttpEndpointBatch>(),
                         });
+                    services.AddTransient<ServerClient>((s) => new ServerClient(new System.Net.Http.HttpClient { BaseAddress = Url }));
 
-                    services.AddHttpClient<ServerClient>(client =>
-                    {
-                        client.BaseAddress = Url;
-                    });
                 })
                 .ConfigureServices((host, services) =>
                 {
@@ -122,7 +119,9 @@ namespace ApplicationRegistry.Collector
                     builder.SetMinimumLevel(LogLevel.Trace);
                 })
                 .Build()
-                .StartAsync();
+                .Run();
+
+            Console.WriteLine("Application is closed");
 
             return 0;
         }
@@ -131,7 +130,7 @@ namespace ApplicationRegistry.Collector
 
     public static class IServiceCollectionExtensions
     {
-        public IServiceCollection RegisterSpecificationBatches(this IServiceCollection services)
+        public static IServiceCollection RegisterSpecificationBatches(this IServiceCollection services)
         {
 
 
