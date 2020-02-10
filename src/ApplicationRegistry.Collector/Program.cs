@@ -12,6 +12,7 @@ using ApplicationRegistry.Collector.Batches.Implementations.Specifications;
 using System.ComponentModel.DataAnnotations;
 using System;
 using System.Threading.Tasks;
+using ApplicationRegistry.BackendHttpClient;
 
 namespace ApplicationRegistry.Collector
 {
@@ -51,7 +52,8 @@ namespace ApplicationRegistry.Collector
 
         public async Task<int> OnExecute()
         {
-            BatchProcessArguments arguments = new BatchProcessArgumentsFactory().Create(Applicatnion, Environment, FileOutput, ProjectFilePath, SolutionFilePath, Url, Version);
+            var arguments = new BatchProcessArgumentsFactory().Create(Applicatnion, Environment, FileOutput, ProjectFilePath, SolutionFilePath, Url, Version);
+
             if (arguments == null)
             {
                 return 0;
@@ -62,14 +64,13 @@ namespace ApplicationRegistry.Collector
             await new HostBuilder()
                 .ConfigureServices((context, services) =>
                 {
-                    services
-                        .AddLogging();
-
-                    services.AddSingleton<FileSystem>();
+                    services.AddLogging();
 
                     services.AddSingleton(batchContext);
 
+                    services.AddSingleton<FileSystem>();
 
+                    services.AddTransient<ServerClient>();
 
                     services
                         .AddTransient<BatchRunner>()
@@ -79,7 +80,6 @@ namespace ApplicationRegistry.Collector
                         .AddTransient<GetReadmeBatch>()
                         .AddTransient<GenerateSwaggerSpecificationBatch>()
                         .AddTransient<GenerateDatabaseSpecificationBatch>()
-
 
                         .AddTransient<CollectNugetDependenciesBatch>()
                         .AddTransient<CollectAutorestClientDependenciesBatch>()
@@ -105,6 +105,11 @@ namespace ApplicationRegistry.Collector
                             s.GetRequiredService<ResultToFileSaveBatch>(),
                             s.GetRequiredService<ResultToHttpEndpointBatch>(),
                         });
+
+                    services.AddHttpClient<ServerClient>(client =>
+                    {
+                        client.BaseAddress = Url;
+                    });
                 })
                 .ConfigureServices((host, services) =>
                 {
@@ -116,7 +121,6 @@ namespace ApplicationRegistry.Collector
 
                     builder.SetMinimumLevel(LogLevel.Trace);
                 })
-
                 .Build()
                 .StartAsync();
 
@@ -125,4 +129,13 @@ namespace ApplicationRegistry.Collector
 
     }
 
+    public static class IServiceCollectionExtensions
+    {
+        public IServiceCollection RegisterSpecificationBatches(this IServiceCollection services)
+        {
+
+
+            return services;
+        }
+    }
 }

@@ -21,35 +21,14 @@ namespace ApplicationRegistry.Collector.Batches.Implementations.ResultSenders
 
             if (url != null)
             {
-                HttpResponseMessage postResult = null;
-
                 try
                 {
-                    var client = new HttpClient
-                    {
-                        BaseAddress = url
-                    };
+                   var sendingResult = await _client.SendCollectedDataAsync(context.BatchResult);
 
-                    postResult = await client.PostAsJsonAsync("/api/v1/collector", context.BatchResult);
-
-                    postResult.EnsureSuccessStatusCode();
-
-
-                }
-                catch (HttpRequestException ex)
-                {
-                    if (postResult != null)
-                    {
-                        var responseTest = await postResult.Content.ReadAsStringAsync();
-                        "Exception during sending results over http to {0}{1}Content returned{2}{3}.".LogError(this, ex, url, Environment.NewLine, Environment.NewLine, responseTest);
-                    }
-                    else
-                    {
-                        "Exception during sending results over http to {0}.".LogError(this, ex, url);
-                    }
+                    if (sendingResult)
+                        return BatchExecutionResult.CreateSuccessResult();
 
                     return BatchExecutionResult.CreateFailResult();
-
                 }
                 catch (Exception ex)
                 {
@@ -62,7 +41,6 @@ namespace ApplicationRegistry.Collector.Batches.Implementations.ResultSenders
             {
                 "Url not provided. Skipping sending result oveer http".LogInfo(this);
             }
-
 
             return BatchExecutionResult.CreateSuccessResult();
         }

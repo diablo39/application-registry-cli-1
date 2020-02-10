@@ -10,9 +10,9 @@ namespace ApplicationRegistry.BackendHttpClient
     {
         private readonly HttpClient _client;
 
-        public ServerClient()
+        public ServerClient(HttpClient client)
         {
-            _client = new HttpClient();
+            _client = client;
         }
 
         public async Task ReportError(CollectorError error)
@@ -23,7 +23,7 @@ namespace ApplicationRegistry.BackendHttpClient
             }
         }
 
-        public async Task<bool> SendCollectedData(ApplicationInfo applicationInfo)
+        public async Task<bool> SendCollectedDataAsync(ApplicationInfo applicationInfo)
         {
             const string RequestUri = "/api/v1/collector";
 
