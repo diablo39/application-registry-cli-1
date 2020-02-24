@@ -50,7 +50,7 @@ namespace ApplicationRegistry.Collector.Batches.Implementations.Dependencies
 
             var restClientBaseClass = compilation.GetTypeByMetadataName(_restClientBaseClassName);
 
-            if (restClientBaseClass == null) 
+            if (restClientBaseClass == null)
             {
                 "No autorest type found in solution".LogError(this);
                 return result;
@@ -119,6 +119,12 @@ namespace ApplicationRegistry.Collector.Batches.Implementations.Dependencies
                 if (member.Locations.Length > 1 || member.Locations.Length == 0)
                 {
                     "More then one location found for method. Skipping {0}".LogInfo(this, member.Name);
+                    return "";
+                }
+
+                if (member.Locations[0].IsInSource)
+                {
+                    "Member found in dll. Skipping {0}".LogInfo(this, member.Name);
                     return "";
                 }
 

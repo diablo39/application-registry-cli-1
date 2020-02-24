@@ -8,7 +8,7 @@
     <ToolCommandName>ar-collector</ToolCommandName>
     <PackageOutputPath>../../nupkg</PackageOutputPath>
     <Configurations>Debug;Release;App2;App3</Configurations>
-    <Version>1.1.0</Version>
+    <Version>1.1.1</Version>
     <Authors>Roman Glogowski</Authors>
     <Company>Roman</Company>
     <RepositoryType>git</RepositoryType>
@@ -29,7 +29,6 @@
     <PackageReference Include="Buildalyzer.Workspaces" Version="2.2.0" />
     <PackageReference Include="McMaster.Extensions.CommandLineUtils" Version="2.5.0" />
     <PackageReference Include="McMaster.Extensions.Hosting.CommandLine" Version="2.5.0" />
-    <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="5.2.7" />
     <PackageReference Include="Microsoft.CodeAnalysis" Version="2.10.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="2.10.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.9.7">
