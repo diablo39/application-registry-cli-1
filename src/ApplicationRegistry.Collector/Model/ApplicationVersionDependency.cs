@@ -8,13 +8,15 @@ namespace ApplicationRegistry.Collector.Model
 {
     public class ApplicationVersionDependency
     {
-        public class Operation
+        internal class Operation
         {
             public string OperationId { get; set; }
 
             public string Path { get; set; }
 
             public bool IsInUse { get; set; }
+
+            public string HttpMethod { get; internal set; }
         }
 
         [Required]

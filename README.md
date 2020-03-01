@@ -1,20 +1,45 @@
-# Introduction 
-TODO: Give a short introduction of your project. Let this section explain the objectives or the motivation behind this project. 
+# Application Registry Collector
 
-# Getting Started
-TODO: Guide users through getting your code up and running on their own system. In this section you can talk about:
-1.	Installation process
-2.	Software dependencies
-3.	Latest releases
-4.	API references
+## Introduction
 
-# Build and Test
-TODO: Describe and show how to build your code and run the tests. 
+## Getting Started
 
-# Contribute
-TODO: Explain how other users and developers can contribute to make your code better. 
+### 1. Installation process
 
-If you want to learn more about creating good readme files then refer the following [guidelines](https://www.visualstudio.com/en-us/docs/git/create-a-readme). You can also seek inspiration from the below readme files:
-- [ASP.NET Core](https://github.com/aspnet/Home)
-- [Visual Studio Code](https://github.com/Microsoft/vscode)
-- [Chakra Core](https://github.com/Microsoft/ChakraCore)
+Collector is implemented as dotnet toll and can be installed via nuget.
+
+To install Collector as global tool from command line invoke:
+
+```shell
+dotnet tool install ApplicationRegistry.Collector --global
+```
+
+During registration process alias for the tool is created.
+Collector is available with command: `ar-collector`
+
+### Parameters
+
+## Build and Test
+
+## Dependency collectors
+
+| Developed | Collector name             | Description |
+| --------- | -------------------------- | ----------- |
+| [x]       | Autorest client dependency |             |
+| [x]       | Nuget dependencies         |             |
+| [ ]       | Dotnet version             |             |
+
+## Specification generators
+
+| Developed | Specification generator name | Description |
+| --------- | ---------------------------- | ----------- |
+| [x]       | Swagger specification        |             |
+| [ ]       | Database specification       |             |
+
+## Samples
+
+### Sample invocation
+
+```shell
+ar-collector --path ApplicationRegistry.Collector\samples\ApplicationRegistry.SampleWebApplication\ApplicationRegistry.SampleWebApplication.csproj -e INT -a NewApp -v Snapshot -sd v1 -u https://localhost:44346
+```
