@@ -8,11 +8,13 @@
     <ToolCommandName>ar-collector</ToolCommandName>
     <PackageOutputPath>../../nupkg</PackageOutputPath>
     <Configurations>Debug;Release;App2;App3</Configurations>
-    <Version>1.0.9</Version>
+    <Version>1.1.0</Version>
     <Authors>Roman Glogowski</Authors>
     <Company>Roman</Company>
     <RepositoryType>git</RepositoryType>
     <NeutralLanguage>pl</NeutralLanguage>
+    <Description>Collector that scans application and sends result to Application Registry system</Description>
+    <PackageTags>microservice dependiencies</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
