@@ -1,4 +1,5 @@
 ﻿using ApplicationRegistry.Collector.Model;
+using Newtonsoft.Json;
 using System;
 using System.IO;
 using System.Net.Http;
@@ -17,7 +18,8 @@ namespace ApplicationRegistry.BackendHttpClient
 
         public async Task ReportError(CollectorError error)
         {
-            using (var response = await _client.PostAsJsonAsync("/api/v1/Collector/Error", error))
+            
+            using (var response = await _client.PostAsync("/api/v1/Collector/Error", new StringContent(JsonConvert.SerializeObject(error))))
             {
 
             }
@@ -31,7 +33,7 @@ namespace ApplicationRegistry.BackendHttpClient
 
             try
             {
-                postResult = await _client.PostAsJsonAsync(RequestUri, applicationInfo);
+                postResult = await _client.PostAsync(RequestUri, new StringContent(JsonConvert.SerializeObject(applicationInfo)));
                 postResult.EnsureSuccessStatusCode();
                 return true;
             }
