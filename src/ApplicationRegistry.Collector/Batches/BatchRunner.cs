@@ -11,9 +11,6 @@ namespace ApplicationRegistry.Collector.Batches
 {
     class BatchRunner
     {
-
-        private readonly IApplicationLifetime _applicationLifetime;
-
         private readonly IEnumerable<IBatch> _batches;
         readonly IHost _host;
 
