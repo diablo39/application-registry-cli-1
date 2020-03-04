@@ -36,7 +36,7 @@ namespace ApplicationRegistry.Collector.Batches
                 {
                     batchResult = await batch.ProcessAsync(context);
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     exceptionThrown = ex;
                     batchResult = BatchExecutionResult.CreateFailResult();
@@ -67,7 +67,10 @@ namespace ApplicationRegistry.Collector.Batches
             activity.Stop();
 
             "Processing of all batches finished after: {0}".LogInfo(this, activity.Duration);
-            await _host?.StopAsync();
+            if (_host != null)
+            {
+                await _host.StopAsync();
+            }
         }
 
         private void PrintBatches()

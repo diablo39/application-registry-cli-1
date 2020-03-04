@@ -1,7 +1,9 @@
 ﻿using ApplicationRegistry.Collector.Batches.Implementations.Dependencies;
+using ApplicationRegistry.Collector.Model;
 using ApplicationRegistry.Collector.Tests.TestingInfrastructure;
 using FluentAssertions;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using Xunit;
@@ -42,6 +44,23 @@ namespace ApplicationRegistry.Collector.Tests.Batches
             result.Result.Should().Be(BatchExecutionResult.ExecutionResult.Success);
 
             context.BatchResult.Dependencies.Should().HaveCount(3);
+
+            context.BatchResult.Dependencies.ForEach(dependency => {
+                dependency.DependencyType.Should().Be("AUTORESTCLIENT", "only autorest clients should be found");
+
+                dependency.VersionExtraProperties.Keys.Count.Should().Be(1);
+
+                var operations = (dependency.VersionExtraProperties["Operations"] as List<ApplicationVersionDependency.Operation>);
+
+                operations.Should().NotBeNull();
+
+                operations.ForEach(operation => {
+                    operation.HttpMethod.Should().NotBeNullOrWhiteSpace();
+                    operation.OperationId.Should().NotBeNullOrWhiteSpace();
+                    operation.Path.Should().NotBeNullOrWhiteSpace();
+                });
+
+            });
 
             LoggingContext.Logger.Error.Should().Be(0);
             LoggingContext.Logger.Critical.Should().Be(0);
