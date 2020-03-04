@@ -30,10 +30,17 @@ namespace ApplicationRegistry.BackendHttpClient
             const string RequestUri = "/api/v1/collector";
             var url = Path.Combine(_client.BaseAddress?.ToString(), RequestUri);
             HttpResponseMessage postResult = null;
-
+            var responseTest = "";
             try
             {
-                postResult = await _client.PostAsync(RequestUri, new StringContent(JsonConvert.SerializeObject(applicationInfo)));
+                var _requestContent = JsonConvert.SerializeObject(applicationInfo);
+                var _httpRequestContent = new StringContent(_requestContent, System.Text.Encoding.UTF8);
+                _httpRequestContent.Headers.ContentType = System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json; charset=utf-8");
+
+                postResult = await _client.PostAsync(RequestUri, _httpRequestContent);
+
+                responseTest = await postResult.Content.ReadAsStringAsync();
+
                 postResult.EnsureSuccessStatusCode();
                 return true;
             }
@@ -42,7 +49,6 @@ namespace ApplicationRegistry.BackendHttpClient
                 
                 if (postResult != null)
                 {
-                    var responseTest = await postResult.Content.ReadAsStringAsync();
                     "Exception during sending results over http to: {0}{1}Content returned:{2}{3}.".LogError(this, ex, url, Environment.NewLine, Environment.NewLine, responseTest);
                 }
                 else
