@@ -5,16 +5,21 @@
     <TargetFramework>netcoreapp2.1</TargetFramework>
 
     <PackAsTool>true</PackAsTool>
-    <ToolCommandName>ar-collector</ToolCommandName>
+    <ToolCommandName>arcli</ToolCommandName>
     <PackageOutputPath>../../nupkg</PackageOutputPath>
     <Configurations>Debug;Release;App2;App3</Configurations>
-    <Version>1.1.2</Version>
+    <Version>1.1.3</Version>
     <Authors>Roman Glogowski</Authors>
     <Company>Roman</Company>
     <RepositoryType>git</RepositoryType>
     <NeutralLanguage>pl</NeutralLanguage>
-    <Description>Collector that scans application and sends result to Application Registry system</Description>
+    <Description>CLI for Application Registry</Description>
     <PackageTags>microservice dependiencies</PackageTags>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <AssemblyVersion>1.1.3.0</AssemblyVersion>
+    <PackageId>applicationregistry.cli</PackageId>
+    <Product>ApplicationRegistry</Product>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
 
   <ItemGroup>
