@@ -77,11 +77,14 @@ namespace ApplicationRegistry
                 var host = new WebHostBuilder()
                            .ConfigureAppConfiguration((context, builder) =>
                            {
+                               var env = context.HostingEnvironment;
+
                                builder.Sources.Clear();
                                builder.SetBasePath(Directory.GetCurrentDirectory());
 
                                builder
-                                   .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+                                   .AddJsonFile("appsettings.json", optional: true, reloadOnChange: false)
+                                   .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true, reloadOnChange: false)
                                    .AddEnvironmentVariables();
                            })
                            .UseStartup(typeof(ApplicationRegistryProgram).Assembly.FullName)
