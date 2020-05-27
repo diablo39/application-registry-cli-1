@@ -8,7 +8,7 @@
     <ToolCommandName>arcli</ToolCommandName>
     <PackageOutputPath>../../nupkg</PackageOutputPath>
     <Configurations>Debug;Release;App2;App3</Configurations>
-    <Version>1.1.3</Version>
+    <Version>1.1.4</Version>
     <Authors>Roman Glogowski</Authors>
     <Company>Roman</Company>
     <RepositoryType>git</RepositoryType>
