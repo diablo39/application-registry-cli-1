@@ -20,6 +20,8 @@ namespace ApplicationRegistry.Collector.Batches.Implementations.Dependencies
 
         public async Task<BatchExecutionResult> ProcessAsync(BatchContext context)
         {
+            return BatchExecutionResult.CreateSuccessResult(); // not needed - to be removed in the future
+
             try
             {
                 var dependencies = await GetDependenciesAsync(context.Arguments.ProjectFilePath, context.Arguments.SolutionFilePath);
