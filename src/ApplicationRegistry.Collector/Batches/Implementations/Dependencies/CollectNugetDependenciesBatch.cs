@@ -6,6 +6,9 @@ using System.IO;
 using System.Linq;
 using System.Xml.Linq;
 using System.Xml.XPath;
+using Buildalyzer;
+using Microsoft.CodeAnalysis;
+using Buildalyzer.Workspaces;
 
 namespace ApplicationRegistry.Collector.Batches.Implementations.Dependencies
 {
@@ -13,57 +16,37 @@ namespace ApplicationRegistry.Collector.Batches.Implementations.Dependencies
     {
         private SortedSet<string> _processedProjects = new SortedSet<string>();
 
-        public Task<BatchExecutionResult> ProcessAsync(BatchContext context)
+        public async Task<BatchExecutionResult> ProcessAsync(BatchContext context)
         {
             try
             {
-                var dependencies = GetDependencies(context.Arguments.ProjectFilePath);
+                var dependencies = await GetDependencies(context.Arguments.ProjectFilePath, context.Arguments.SolutionFilePath);
 
                 context.BatchResult.Dependencies.AddRange(dependencies);
 
-                return Task.FromResult(BatchExecutionResult.CreateSuccessResult());
+                return BatchExecutionResult.CreateSuccessResult();
             }
             catch (Exception)
             {
-                return Task.FromResult(BatchExecutionResult.CreateErrorResult());
+                return BatchExecutionResult.CreateErrorResult();
             }
         }
 
-        public List<ApplicationVersionDependency> GetDependencies(string projectFilePath)
+        public async Task<List<ApplicationVersionDependency>> GetDependencies(string projectFilePath, string solutionFilePath)
         {
             var result = new List<ApplicationVersionDependency>();
-            var projectDirectory = new FileInfo(projectFilePath).Directory.FullName;
 
-            var xml = XDocument.Load(projectFilePath);
+            AnalyzerManager manager = new AnalyzerManager(solutionFilePath);
 
-            var packageReferences = xml.XPathSelectElements("//PackageReference");
+            AdhocWorkspace workspace = manager.GetWorkspace();
 
-            foreach (var item in packageReferences)
+            var project = workspace.CurrentSolution.Projects.FirstOrDefault(p => p.FilePath == projectFilePath);
+
+            var compilation = await project.GetCompilationAsync();
+
+            foreach (var item in compilation.ReferencedAssemblyNames)
             {
-                if (item.Attribute("Version") == null)
-                    continue;
-
-                result.Add(new ApplicationVersionDependency { DependencyType = "NUGET", Name = item.Attribute("Include").Value, Version = item.Attribute("Version").Value });
-            }
-
-            var projectReferences = xml.XPathSelectElements("//ProjectReference");
-
-            foreach (var item in projectReferences)
-            {
-                var referencedProject = Path.Combine(projectDirectory, item.Attribute("Include").Value);
-
-                if (_processedProjects.Contains(referencedProject)) continue;
-
-                var collectorDependencies = GetDependencies(referencedProject);
-
-                for (int i = 0; i < collectorDependencies.Count; i++)
-                {
-                    var d = collectorDependencies[i];
-                    if (!result.Any(e => e.DependencyType == d.DependencyType && string.Equals(e.Name, d.Name, StringComparison.InvariantCultureIgnoreCase)))
-                        result.Add(d);
-                }
-
-                _processedProjects.Add(referencedProject);
+                result.Add(new ApplicationVersionDependency { DependencyType = "NUGET", Name = item.Name, Version = item.Version.ToString() });
             }
 
             return result;

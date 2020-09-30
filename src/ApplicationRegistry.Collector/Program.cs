@@ -48,15 +48,14 @@ namespace ApplicationRegistry.Collector
 
         public static int Main(string[] args) => CommandLineApplication.Execute<Program>(args);
 
-        private static string _newLine = System.Environment.NewLine;
 
-        public async Task<int> OnExecute()
+        public Task<int> OnExecute()
         {
             var arguments = new BatchProcessArgumentsFactory().Create(Applicatnion, Environment, FileOutput, ProjectFilePath, SolutionFilePath, Url, Version);
 
             if (arguments == null)
             {
-                return 0;
+                return Task.FromResult(0);
             }
 
             var batchContext = new BatchContext(arguments);
@@ -123,18 +122,8 @@ namespace ApplicationRegistry.Collector
 
             Console.WriteLine("Application is closed");
 
-            return 0;
+            return Task.FromResult(0);
         }
 
-    }
-
-    public static class IServiceCollectionExtensions
-    {
-        public static IServiceCollection RegisterSpecificationBatches(this IServiceCollection services)
-        {
-
-
-            return services;
-        }
     }
 }
