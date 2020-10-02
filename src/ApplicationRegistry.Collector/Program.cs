@@ -45,13 +45,15 @@ namespace ApplicationRegistry.Collector
         [Option("-u|--output-url <URL>", "Url to Application Registry", CommandOptionType.SingleValue)]
         public Uri Url { get; set; }
 
+        [Option("-r|--repository-url <URL>", "Repository with code url", CommandOptionType.SingleValue)]
+        public string RepositoryUrl { get; }
 
         public static int Main(string[] args) => CommandLineApplication.Execute<Program>(args);
 
 
         public Task<int> OnExecute()
         {
-            var arguments = new BatchProcessArgumentsFactory().Create(Applicatnion, Environment, FileOutput, ProjectFilePath, SolutionFilePath, Url, Version);
+            var arguments = new BatchProcessArgumentsFactory().Create(Applicatnion, Environment, FileOutput, ProjectFilePath, SolutionFilePath, Url, Version, RepositoryUrl);
 
             if (arguments == null)
             {

@@ -24,25 +24,32 @@ namespace ApplicationRegistry.Collector.Batches
         {
             PrintBatches();
             var activity = new Activity("Batches running").Start();
-
+          
             foreach (var batch in _batches)
             {
                 var batchName = batch.GetType().Name;
                 "Starting {0}".LogInfo(this, batchName);
                 var batchActivity = new Activity(batchName + " Execution").Start();
-                BatchExecutionResult batchResult = default(BatchExecutionResult);
                 Exception exceptionThrown = null;
+                BatchExecutionResult batchResult;
                 try
                 {
                     batchResult = await batch.ProcessAsync(context);
+                    context.BatchResult.BatchStatuses.Add(batch.GetType().Name, true);
+                    
                 }
                 catch (Exception ex)
                 {
                     exceptionThrown = ex;
                     batchResult = BatchExecutionResult.CreateFailResult();
+                    context.BatchResult.BatchStatuses.Add(batch.GetType().Name, false);
+                    context.BatchResult.ExecutionSucceeded = false;
                 }
 
                 batchActivity.Stop();
+
+                context.BatchResult.ExecutionDuration = (DateTime.UtcNow - activity.StartTimeUtc).ToString();
+
                 if (batchResult.Result == ExecutionResult.Error)
                 {
                     "Batch: {0} exited with error. Spikking batch and moving further".LogWarning(this, batch.GetType().ToString());

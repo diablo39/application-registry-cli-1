@@ -19,16 +19,22 @@ namespace ApplicationRegistry.Collector.Model
 
         public string IdCommit { get; set; }
 
-        public bool SpecificationGenerationFailed { get; set; }
-
-        public bool DependencyFillectionFailed { get; set; }
 
         public string ToolsVersion { get; set; }
+
+        public string RepositoryUrl { get; set; }
+
+        public bool ExecutionSucceeded { get; set; } = true;
+
+        public string ExecutionDuration { get; set; }
 
         // Navigation properties
         public List<ApplicationVersionSpecification> Specifications { get; } = new List<ApplicationVersionSpecification>();
 
         public List<ApplicationVersionDependency> Dependencies { get; } = new List<ApplicationVersionDependency>();
-        
+
+        public Dictionary<string, bool> BatchStatuses { get; } = new Dictionary<string, bool>();
+
     }
+
 }
