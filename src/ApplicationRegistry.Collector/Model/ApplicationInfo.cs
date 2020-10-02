@@ -26,7 +26,7 @@ namespace ApplicationRegistry.Collector.Model
 
         public bool ExecutionSucceeded { get; set; } = true;
 
-        public string ExecutionDuration { get; set; }
+        public long ExecutionDuration { get; set; }
 
         // Navigation properties
         public List<ApplicationVersionSpecification> Specifications { get; } = new List<ApplicationVersionSpecification>();

@@ -48,7 +48,7 @@ namespace ApplicationRegistry.Collector.Batches
 
                 batchActivity.Stop();
 
-                context.BatchResult.ExecutionDuration = (DateTime.UtcNow - activity.StartTimeUtc).ToString();
+                context.BatchResult.ExecutionDuration = ((long)(DateTime.UtcNow - activity.StartTimeUtc).TotalSeconds);
 
                 if (batchResult.Result == ExecutionResult.Error)
                 {
