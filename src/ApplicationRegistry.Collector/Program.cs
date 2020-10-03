@@ -13,6 +13,7 @@ using System.ComponentModel.DataAnnotations;
 using System;
 using System.Threading.Tasks;
 using ApplicationRegistry.BackendHttpClient;
+using System.Net.Http;
 
 namespace ApplicationRegistry.Collector
 {
@@ -106,8 +107,8 @@ namespace ApplicationRegistry.Collector
                             s.GetRequiredService<ResultToFileSaveBatch>(),
                             s.GetRequiredService<ResultToHttpEndpointBatch>(),
                         });
-                    services.AddTransient<ServerClient>((s) => new ServerClient(new System.Net.Http.HttpClient { BaseAddress = Url }));
-
+                    services.AddTransient<ServerClient>((s) => new ServerClient(new System.Net.Http.HttpClient(new HttpClientHandler { UseProxy = false }) { BaseAddress = Url }));
+                    
                 })
                 .ConfigureServices((host, services) =>
                 {
