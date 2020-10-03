@@ -35,37 +35,41 @@ namespace ApplicationRegistry.Collector.Batches
                 try
                 {
                     batchResult = await batch.ProcessAsync(context);
-                    context.BatchResult.BatchStatuses.Add(batch.GetType().Name, true);
-                    
                 }
                 catch (Exception ex)
                 {
                     exceptionThrown = ex;
                     batchResult = BatchExecutionResult.CreateFailResult();
-                    context.BatchResult.BatchStatuses.Add(batch.GetType().Name, false);
-                    context.BatchResult.ExecutionSucceeded = false;
+                    
                 }
 
                 batchActivity.Stop();
 
                 context.BatchResult.ExecutionDuration = ((long)(DateTime.UtcNow - activity.StartTimeUtc).TotalSeconds);
 
-                if (batchResult.Result == ExecutionResult.Error)
+                switch (batchResult.Result)
                 {
-                    "Batch: {0} exited with error. Spikking batch and moving further".LogWarning(this, batch.GetType().ToString());
-                }
-                else if (batchResult.Result == ExecutionResult.Fail)
-                {
-                    if (exceptionThrown != null)
-                    {
-                        "Batch processing failed. Batch: {0} thrown exception. Stop processing.".LogError(this, exceptionThrown, batch.GetType().ToString());
-                    }
-                    else
-                    {
-                        "Batch processing failed. Batch: {0} failed and further processing can't be continued".LogError(this, batch.GetType().ToString());
-                    }
+                    case ExecutionResult.Success:
+                        context.BatchResult.BatchStatuses.Add(batch.GetType().Name, true);
+                        break;
+                    case ExecutionResult.Error:
+                        context.BatchResult.BatchStatuses.Add(batch.GetType().Name, false);
+                        context.BatchResult.ExecutionSucceeded = false;
+                        "Batch: {0} exited with error. Spikking batch and moving further".LogWarning(this, batch.GetType().ToString());
+                        break;
+                    case ExecutionResult.Fail:
+                        context.BatchResult.BatchStatuses.Add(batch.GetType().Name, false);
+                        context.BatchResult.ExecutionSucceeded = false;
+                        if (exceptionThrown != null)
+                        {
+                            "Batch processing failed. Batch: {0} thrown exception. Stop processing.".LogError(this, exceptionThrown, batch.GetType().ToString());
+                        }
+                        else
+                        {
+                            "Batch processing failed. Batch: {0} failed and further processing can't be continued".LogError(this, batch.GetType().ToString());
+                        }
 
-                    break;
+                        break;
                 }
 
                 "Finished {0} with result: {1}{2}Execution took: {3}".LogInfo(this, batchName, batchResult.Result, Environment.NewLine, batchActivity.Duration);
