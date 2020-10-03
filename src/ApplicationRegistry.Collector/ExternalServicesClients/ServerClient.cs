@@ -41,6 +41,9 @@ namespace ApplicationRegistry.BackendHttpClient
 
                 responseTest = await postResult.Content.ReadAsStringAsync();
 
+                ("Htpsend status code: " + postResult.StatusCode).LogInfo(this);
+                responseTest.LogInfo(this);
+
                 postResult.EnsureSuccessStatusCode();
                 return true;
             }

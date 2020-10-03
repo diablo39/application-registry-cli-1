@@ -9,6 +9,7 @@ namespace ApplicationRegistry.Collector.Batches.Implementations
             context.BatchResult.ApplicationCode = context.Arguments.Application;
             context.BatchResult.IdEnvironment = context.Arguments.Environment;
             context.BatchResult.Version = context.Arguments.Version;
+            context.BatchResult.RepositoryUrl = context.Arguments.RepositoryUrl;
 
             context.BatchResult.ToolsVersion = typeof(Program).Assembly.GetName().Version.ToString();
 

@@ -7,7 +7,7 @@ namespace ApplicationRegistry.Collector
 {
     internal class BatchProcessArgumentsFactory
     {
-        public BatchProcessArguments Create(string application, string environment, string fileOutput, string projectFilePath, string solutionFilePath, Uri url, string version)
+        public BatchProcessArguments Create(string application, string environment, string fileOutput, string projectFilePath, string solutionFilePath, Uri url, string version, string repositoryUrl)
         {
             var arguments = new BatchProcessArguments
             {
@@ -17,7 +17,8 @@ namespace ApplicationRegistry.Collector
                 ProjectFilePath = projectFilePath,
                 SolutionFilePath = solutionFilePath,
                 Url = url,
-                Version = version
+                Version = version,
+                RepositoryUrl = repositoryUrl,
             };
 
             try

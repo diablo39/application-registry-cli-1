@@ -17,5 +17,7 @@ namespace ApplicationRegistry.Collector
         public string FileOutput { get; set; }
 
         public Uri Url { get; set; }
+
+        public string RepositoryUrl { get; set; }
     }
 }

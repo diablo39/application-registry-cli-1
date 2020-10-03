@@ -18,7 +18,7 @@ namespace ApplicationRegistry.Collector.Tests.Factories
         public void Factory_Schould_Sanitaze_Path_With_Correct_Result(string projectFilePath, string solutionFilePath, string expectedProjectFile, string expectedSolutionFile)
         {
             var factory = new BatchProcessArgumentsFactory();
-            var arguments = factory.Create("application", "env", "", projectFilePath, solutionFilePath, null, "");
+            var arguments = factory.Create("application", "env", "", projectFilePath, solutionFilePath, null, "", "");
 
             var currentProjectFile = arguments.ProjectFilePath;
             var currentSolutionFile = arguments.SolutionFilePath;
@@ -40,6 +40,7 @@ namespace ApplicationRegistry.Collector.Tests.Factories
                 Path.GetFullPath("."), 
                 null, 
                 null, 
+                "",
                 "");
 
 

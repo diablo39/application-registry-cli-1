@@ -13,6 +13,7 @@ using System.ComponentModel.DataAnnotations;
 using System;
 using System.Threading.Tasks;
 using ApplicationRegistry.BackendHttpClient;
+using System.Net.Http;
 
 namespace ApplicationRegistry.Collector
 {
@@ -45,13 +46,15 @@ namespace ApplicationRegistry.Collector
         [Option("-u|--output-url <URL>", "Url to Application Registry", CommandOptionType.SingleValue)]
         public Uri Url { get; set; }
 
+        [Option("-r|--repository-url <URL>", "Repository with code url", CommandOptionType.SingleValue)]
+        public string RepositoryUrl { get; }
 
         public static int Main(string[] args) => CommandLineApplication.Execute<Program>(args);
 
 
         public Task<int> OnExecute()
         {
-            var arguments = new BatchProcessArgumentsFactory().Create(Applicatnion, Environment, FileOutput, ProjectFilePath, SolutionFilePath, Url, Version);
+            var arguments = new BatchProcessArgumentsFactory().Create(Applicatnion, Environment, FileOutput, ProjectFilePath, SolutionFilePath, Url, Version, RepositoryUrl);
 
             if (arguments == null)
             {
@@ -104,8 +107,8 @@ namespace ApplicationRegistry.Collector
                             s.GetRequiredService<ResultToFileSaveBatch>(),
                             s.GetRequiredService<ResultToHttpEndpointBatch>(),
                         });
-                    services.AddTransient<ServerClient>((s) => new ServerClient(new System.Net.Http.HttpClient { BaseAddress = Url }));
-
+                    services.AddTransient<ServerClient>((s) => new ServerClient(new System.Net.Http.HttpClient(new HttpClientHandler { UseProxy = false }) { BaseAddress = Url }));
+                    
                 })
                 .ConfigureServices((host, services) =>
                 {
