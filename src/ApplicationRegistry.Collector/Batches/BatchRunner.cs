@@ -39,7 +39,7 @@ namespace ApplicationRegistry.Collector.Batches
                 catch (Exception ex)
                 {
                     exceptionThrown = ex;
-                    batchResult = BatchExecutionResult.CreateFailResult();
+                    batchResult = CreateFailResult();
                     
                 }
 

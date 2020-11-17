@@ -10,13 +10,13 @@ using Microsoft.CodeAnalysis.FindSymbols;
 using Microsoft.Extensions.Logging;
 using System.Collections.Immutable;
 using System.Linq;
-
+using System.Threading;
 
 namespace ApplicationRegistry.Collector.Batches.Implementations.Dependencies
 {
     class CollectAutorestClientDependenciesBatch : IBatch
     {
-        private const string _restClientBaseClassName = "Microsoft.Rest.ServiceClient`1";
+        private const string RestClientBaseClassName = "Microsoft.Rest.ServiceClient`1";
 
         public async Task<BatchExecutionResult> ProcessAsync(BatchContext context)
         {
@@ -50,7 +50,7 @@ namespace ApplicationRegistry.Collector.Batches.Implementations.Dependencies
 
             var compilation = await project.GetCompilationAsync();
 
-            var restClientBaseClass = compilation.GetTypeByMetadataName(_restClientBaseClassName);
+            var restClientBaseClass = compilation.GetTypeByMetadataName(RestClientBaseClassName);
 
             if (restClientBaseClass == null)
             {
@@ -60,7 +60,7 @@ namespace ApplicationRegistry.Collector.Batches.Implementations.Dependencies
 
             var projectsToScan = GetProjectsToBeScanned(workspace, project);
 
-            var restClients = await SymbolFinder.FindDerivedClassesAsync(restClientBaseClass, workspace.CurrentSolution, projectsToScan);
+            var restClients = await SymbolFinder.FindDerivedClassesAsync(restClientBaseClass, workspace.CurrentSolution, projectsToScan, default(CancellationToken));
 
             foreach (var restClient in restClients)
             {

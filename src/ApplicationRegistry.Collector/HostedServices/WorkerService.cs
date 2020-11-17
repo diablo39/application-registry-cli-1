@@ -1,15 +1,7 @@
 ﻿using ApplicationRegistry.Collector.Batches;
-using ApplicationRegistry.Collector.Model;
-using McMaster.Extensions.CommandLineUtils;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.IO;
-using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -32,7 +24,9 @@ namespace ApplicationRegistry.Collector
         }
 
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
         public async Task StartAsync(CancellationToken cancellationToken)
+#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
         {
             _batchRunner.RunBatchesAsync(_batchContext);
         }

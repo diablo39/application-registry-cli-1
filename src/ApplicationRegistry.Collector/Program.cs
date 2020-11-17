@@ -107,7 +107,7 @@ namespace ApplicationRegistry.Collector
                             s.GetRequiredService<ResultToFileSaveBatch>(),
                             s.GetRequiredService<ResultToHttpEndpointBatch>(),
                         });
-                    services.AddTransient<ServerClient>((s) => new ServerClient(new System.Net.Http.HttpClient(new HttpClientHandler { UseProxy = false }) { BaseAddress = Url }));
+                    services.AddTransient((s) => new ServerClient(new HttpClient(new HttpClientHandler { UseProxy = false }) { BaseAddress = Url }));
                     
                 })
                 .ConfigureServices((host, services) =>

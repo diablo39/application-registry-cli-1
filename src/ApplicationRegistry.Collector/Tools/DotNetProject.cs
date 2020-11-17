@@ -68,15 +68,12 @@ namespace ApplicationRegistry.Collector
         /// </summary>
         /// <param name="args"></param>
         /// <returns></returns>
-        /// <exception cref="System.Exception"></exception>
+        /// <exception cref="Exception"></exception>
         public string Run(params string[] args)
         {
             var parameters = new StringBuilder("run --no-launch-profile --framework netcoreapp2.1 -- "); // TODO: no hardcoded framework
 
-            if (args != null)
-            {
-                parameters.Append(string.Join(" ", args));
-            }
+            parameters.Append(string.Join(" ", args));
 
             var start = new ProcessStartInfo(DotNetExe.FullPathOrDefault(), parameters.ToString())
             {
