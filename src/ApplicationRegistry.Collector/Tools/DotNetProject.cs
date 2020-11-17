@@ -71,7 +71,7 @@ namespace ApplicationRegistry.Collector
         /// <exception cref="Exception"></exception>
         public string Run(params string[] args)
         {
-            var parameters = new StringBuilder("run --no-launch-profile --framework netcoreapp2.1 -- "); // TODO: no hardcoded framework
+            var parameters = new StringBuilder("run --no-restore --no-launch-profile --framework netcoreapp2.1 -- "); // TODO: no hardcoded framework
 
             parameters.Append(string.Join(" ", args));
 
@@ -149,7 +149,7 @@ namespace ApplicationRegistry.Collector
 
         public void Build(string startupObject = null)
         {
-            var commandBuilder = new StringBuilder($"build -v q \"{_projectFile}\"");
+            var commandBuilder = new StringBuilder($"build --no-restore -v q \"{_projectFile}\"");
 
             if (!string.IsNullOrWhiteSpace(startupObject))
                 SetStartupObject(startupObject);

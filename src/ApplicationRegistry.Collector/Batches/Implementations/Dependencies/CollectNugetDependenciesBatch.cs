@@ -43,6 +43,8 @@ namespace ApplicationRegistry.Collector.Batches.Implementations.Dependencies
 
             foreach (var item in compilation.ReferencedAssemblyNames)
             {
+                if (workspace.CurrentSolution.Projects.Any(e => e.Name == item.Name || e.AssemblyName == item.Name)) continue;
+
                 result.Add(new ApplicationVersionDependency { DependencyType = "NUGET", Name = item.Name, Version = item.Version.ToString() });
             }
 
