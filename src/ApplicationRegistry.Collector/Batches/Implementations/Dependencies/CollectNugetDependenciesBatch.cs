@@ -2,10 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using ApplicationRegistry.Collector.Model;
-using System.IO;
 using System.Linq;
-using System.Xml.Linq;
-using System.Xml.XPath;
 using Buildalyzer;
 using Microsoft.CodeAnalysis;
 using Buildalyzer.Workspaces;
