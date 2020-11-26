@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Text;
 
 namespace ApplicationRegistry.Collector.Model
 {
@@ -18,6 +15,8 @@ namespace ApplicationRegistry.Collector.Model
         public string Version { get; set; }
 
         public string IdCommit { get; set; }
+
+        public string Framework { get; set; } = ".NET";
 
 
         public string ToolsVersion { get; set; }
