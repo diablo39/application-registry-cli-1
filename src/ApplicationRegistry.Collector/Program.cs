@@ -14,6 +14,7 @@ using System;
 using System.Threading.Tasks;
 using ApplicationRegistry.BackendHttpClient;
 using System.Net.Http;
+using ApplicationRegistry.Collector.Tools;
 
 namespace ApplicationRegistry.Collector
 {
@@ -75,6 +76,7 @@ namespace ApplicationRegistry.Collector
                     services.AddTransient<ServerClient>();
 
                     services
+                        .AddTransient<CompilationProvider>()
                         .AddTransient<BatchRunner>()
                         .AddTransient<ValidateArgumentsBatch>()
                         .AddTransient<CollectApplicationInfoBatch>()
