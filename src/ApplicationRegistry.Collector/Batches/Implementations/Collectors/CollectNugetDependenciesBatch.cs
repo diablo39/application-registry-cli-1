@@ -3,15 +3,20 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using ApplicationRegistry.Collector.Model;
 using System.Linq;
-using Buildalyzer;
 using Microsoft.CodeAnalysis;
-using Buildalyzer.Workspaces;
+using ApplicationRegistry.Collector.Tools;
 
 namespace ApplicationRegistry.Collector.Batches.Implementations.Dependencies
 {
     class CollectNugetDependenciesBatch : IBatch
     {
         private SortedSet<string> _processedProjects = new SortedSet<string>();
+        private CompilationProvider _compilationProvider;
+
+        public CollectNugetDependenciesBatch(CompilationProvider compilationProvider)
+        {
+            _compilationProvider = compilationProvider;
+        }
 
         public async Task<BatchExecutionResult> ProcessAsync(BatchContext context)
         {
@@ -33,9 +38,7 @@ namespace ApplicationRegistry.Collector.Batches.Implementations.Dependencies
         {
             var result = new List<ApplicationVersionDependency>();
 
-            AnalyzerManager manager = new AnalyzerManager(solutionFilePath);
-
-            AdhocWorkspace workspace = manager.GetWorkspace();
+            AdhocWorkspace workspace = _compilationProvider.GetWorkspace(solutionFilePath);
 
             var project = workspace.CurrentSolution.Projects.FirstOrDefault(p => p.FilePath == projectFilePath);
 

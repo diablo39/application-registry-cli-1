@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using ApplicationRegistry.Collector.Model;
-using Buildalyzer;
-using Buildalyzer.Workspaces;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.FindSymbols;
@@ -11,12 +9,19 @@ using Microsoft.Extensions.Logging;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
+using ApplicationRegistry.Collector.Tools;
 
 namespace ApplicationRegistry.Collector.Batches.Implementations.Dependencies
 {
     class CollectAutorestClientDependenciesBatch : IBatch
     {
         private const string RestClientBaseClassName = "Microsoft.Rest.ServiceClient`1";
+        private readonly CompilationProvider _compilationProvider;
+
+        public CollectAutorestClientDependenciesBatch(CompilationProvider compilationProvider)
+        {
+            _compilationProvider = compilationProvider;
+        }
 
         public async Task<BatchExecutionResult> ProcessAsync(BatchContext context)
         {
@@ -42,9 +47,7 @@ namespace ApplicationRegistry.Collector.Batches.Implementations.Dependencies
         {
             var result = new List<ApplicationVersionDependency>();
 
-            AnalyzerManager manager = new AnalyzerManager(solutionFilePath);
-
-            AdhocWorkspace workspace = manager.GetWorkspace();
+            AdhocWorkspace workspace = _compilationProvider.GetWorkspace(solutionFilePath);
 
             var project = workspace.CurrentSolution.Projects.FirstOrDefault(p => p.FilePath == projectFilePath);
 
