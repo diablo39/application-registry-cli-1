@@ -16,14 +16,14 @@ namespace ApplicationRegistry.BackendHttpClient
             _client = client;
         }
 
-        public async Task ReportError(CollectorError error)
-        {
+        //public async Task ReportError(CollectorError error)
+        //{
             
-            using (var response = await _client.PostAsync("/api/v1/Collector/Error", new StringContent(JsonConvert.SerializeObject(error))))
-            {
+        //    using (var response = await _client.PostAsync("/api/v1/Collector/Error", new StringContent(JsonConvert.SerializeObject(error))))
+        //    {
 
-            }
-        }
+        //    }
+        //}
 
         public async Task<bool> SendCollectedDataAsync(ApplicationInfo applicationInfo)
         {
