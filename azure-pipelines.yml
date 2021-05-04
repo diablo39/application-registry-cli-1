@@ -15,16 +15,23 @@ variables:
 steps:
 - task: UseDotNet@2
   inputs:
-    version: '3.1.x'
-    packageType: runtime
+    version: '2.1.x'
+    packageType: sdk
+
+- task: UseDotNet@2
+  inputs:
+    version: '5.0.x'
+    packageType: sdk
 
 - script: dotnet build --configuration $(buildConfiguration)
   displayName: 'dotnet build $(buildConfiguration)'
+
 - task: DotNetCoreCLI@2
   inputs:
     command: 'pack'
     packagesToPack: 'src/**/ApplicationRegistry.Collector.csproj'
     versioningScheme: 'off'
+
 - task: NuGetCommand@2
   inputs:
     command: 'push'

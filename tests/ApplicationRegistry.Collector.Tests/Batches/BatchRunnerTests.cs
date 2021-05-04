@@ -154,7 +154,7 @@ namespace ApplicationRegistry.Collector.Tests.Batches
         }
 
         [Fact]
-        public async Task Failed_batch_should_stop_processing()
+        public async Task Failed_batch_should_not_stop_processing()
         {
             // Arrange
             var workingBatchMock = new Mock<IBatch>();
@@ -172,11 +172,11 @@ namespace ApplicationRegistry.Collector.Tests.Batches
             await batchRunner.RunBatchesAsync(batchCantext);
 
             //Assert
-            workingBatchMock.VerifyNoOtherCalls();
+            workingBatchMock.Verify(e=> e.ProcessAsync(It.IsAny<BatchContext>()));
         }
 
         [Fact]
-        public async Task Exception_batch_should_stop_processing()
+        public async Task Exception_batch_should_not_stop_processing()
         {
             // Arrange
             var workingBatchMock = new Mock<IBatch>();
@@ -194,7 +194,7 @@ namespace ApplicationRegistry.Collector.Tests.Batches
             await batchRunner.RunBatchesAsync(batchCantext);
 
             //Assert
-            workingBatchMock.VerifyNoOtherCalls();
+            workingBatchMock.Verify(e => e.ProcessAsync(It.IsAny<BatchContext>()));
         }
     }
 }
