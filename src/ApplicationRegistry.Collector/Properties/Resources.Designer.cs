@@ -85,5 +85,31 @@ namespace ApplicationRegistry.Collector.Properties {
                 return ResourceManager.GetString("ApplicationRegistryProgram_ignore", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to using System;
+        ///using System.IO;
+        ///using Microsoft.AspNetCore.Builder;
+        ///using Microsoft.AspNetCore.Hosting;
+        ///using Microsoft.AspNetCore.Mvc;
+        ///using Microsoft.Extensions.Configuration;
+        ///using Microsoft.Extensions.DependencyInjection;
+        ///using Microsoft.Extensions.Options;
+        ///using Swashbuckle.AspNetCore.Swagger;
+        ///
+        ///namespace ApplicationRegistry
+        ///{
+        ///    public class ApplicationRegistryProgram
+        ///    {
+        ///        public class Startup
+        ///        {
+        ///
+        ///            // This method gets called by the runtime. Use this method to [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string ApplicationRegistryProgram_ignore_net5_0 {
+            get {
+                return ResourceManager.GetString("ApplicationRegistryProgram_ignore_net5_0", resourceCulture);
+            }
+        }
     }
 }

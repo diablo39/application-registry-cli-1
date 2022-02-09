@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Xml.Linq;
 
@@ -26,6 +27,21 @@ namespace ApplicationRegistry.Collector
         private readonly string _projectDirectory;
         private readonly List<(string file, string bakFile)> _filesToRollBack = new List<(string file, string bakFile)>();
         private readonly List<string> _filesToRemove = new List<string>();
+
+        public string FrameworkVersion {
+            get {
+                Regex versionRegex = new Regex("<TargetFramework>([a-zA-Z0-9\\.]*)</TargetFramework>");
+                var projectFileContent = File.ReadAllText(_projectFile);
+
+                var match = versionRegex.Match(projectFileContent);
+
+                if(match == null || !match.Success) {
+                    return "netcoreapp2.1";
+                }
+                
+                return match.Groups[1].Value;
+            }
+        }
 
         public DotNetProject(string projectFile)
         {
@@ -71,7 +87,7 @@ namespace ApplicationRegistry.Collector
         /// <exception cref="Exception"></exception>
         public string Run(params string[] args)
         {
-            var parameters = new StringBuilder("run --no-restore --no-launch-profile --framework netcoreapp2.1 -- "); // TODO: no hardcoded framework
+            var parameters = new StringBuilder("run --no-restore --no-launch-profile -- ");
 
             parameters.Append(string.Join(" ", args));
 

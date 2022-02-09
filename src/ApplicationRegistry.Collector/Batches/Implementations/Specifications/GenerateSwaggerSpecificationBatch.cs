@@ -37,11 +37,20 @@ namespace ApplicationRegistry.Collector.Batches.Implementations.Specifications
         {
             using (var project = new DotNetProject(projectFilePath))
             {
+                var frameworkVersion = project.FrameworkVersion;
+                $"Framework version: {frameworkVersion}".LogDebug(this);
+
                 "Starting standard build of the application".LogDebug(this);
                 project.Build();
-                
-                "Adding new main function".LogDebug(this);
-                project.AddFile("ApplicationRegistryProgram.cs", Resources.ApplicationRegistryProgram_ignore, true);
+
+                if(frameworkVersion.StartsWith("netcoreapp")) {
+                    "Adding new main function (.net core 2.1)".LogDebug(this);
+                    project.AddFile("ApplicationRegistryProgram.cs", Resources.ApplicationRegistryProgram_ignore, true);
+                }
+                else {
+                    "Adding new main function (.net 5.0)".LogDebug(this);
+                    project.AddFile("ApplicationRegistryProgram.cs", Resources.ApplicationRegistryProgram_ignore_net5_0, true);
+                }
                 
                 project.DisableCompilationForCshtml();
                 "Starting build with custom Program class".LogDebug(this);
